@@ -45,8 +45,8 @@ class Tedge < Formula
                 path = "#{var}/tedge"
                 
                 [http]
-                bind.port=8006
-                client.port=8006
+                bind.port=8008
+                client.port=8008
             EOS
         end
 
@@ -58,6 +58,18 @@ class Tedge < Formula
             thin-edge.io has been installed with a default configuration file.
             You can make changes to the configuration by editing:
                 #{etc}/tedge/tedge.toml
+            
+            The following components can be started manually using:
+
+            tedge:
+                #{HOMEBREW_PREFIX}/bin/tedge --config-dir "#{etc}/tedge" config set c8y.url "example.c8y.io"
+
+            tedge-agent:
+                #{HOMEBREW_PREFIX}/bin/tedge-agent --config-dir "#{etc}/tedge"
+            
+            tedge-mapper-c8y:
+                #{HOMEBREW_PREFIX}/bin/tedge-mapper --config-dir "#{etc}/tedge" c8y
+
         EOS
     end
 
