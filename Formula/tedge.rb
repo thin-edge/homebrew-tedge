@@ -51,6 +51,11 @@ class Tedge < Formula
         end
 
         system "tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+
+        # Note: editing the mosquitto.conf fails due to a permission denied error
+        # if File.readlines("#{etc}/mosquitto/mosquitto.conf").grep(/\/tedge\/mosquitto-conf/).size == 0
+        #     File.write("#{etc}/mosquitto/mosquitto.conf", "include_dir #{etc}/tedge/mosquitto-conf", mode: "a+")
+        # end
     end
 
     def caveats
@@ -58,6 +63,9 @@ class Tedge < Formula
             thin-edge.io has been installed with a default configuration file.
             You can make changes to the configuration by editing:
                 #{etc}/tedge/tedge.toml
+
+            You need to manually edit the mosquitto configuration to add the following line:
+                sh -c 'echo include_dir #{etc}/tedge/mosquitto-conf >> "#{etc}/mosquitto/mosquitto.conf"'
             
             The following components can be started manually using:
 
@@ -76,7 +84,7 @@ class Tedge < Formula
     # TODO: homebrew does not support installing multiple services
     # service do
     #     name macos: "tedge-agent",
-    #         linux: "tedge-agent"
+    #          linux: "tedge-agent"
     #     run ["#{HOMEBREW_PREFIX}/bin/tedge-agent", "--config-dir", etc/"tedge"]
     #     keep_alive false
     # end
