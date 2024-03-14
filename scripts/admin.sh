@@ -11,12 +11,9 @@ USAGE
     $0 <COMMAND> [OPTIONS]
 
 COMMANDS
-    $0 update_version          Update the BB layer for thin-edge.io to the latest version
+    $0 update_version          Update the homewbrew formula for thin-edge.io to the latest version
 EOT
 }
-
-TEDGE_CHANNEL="dev"
-TEDGE_PACKAGE="thinedge/tedge-$TEDGE_CHANNEL"
 
 get_latest_version() {
     repo="$1"
@@ -58,24 +55,24 @@ update_version() {
 
     echo "Updating version" >&2
     # thin-edge.io
-    tedge_version=$(get_latest_version "$TEDGE_PACKAGE" "arm64")
-    echo "Latest thin-edge.io version: $tedge_version in ($TEDGE_PACKAGE)"
+    package_version=$(get_latest_version "$REPO" "arm64")
+    echo "Latest thin-edge.io version: $package_version in ($REPO)"
 
     # Generate file from a template
     output_file="$SCRIPT_DIR/../Formula/tedge.rb"
     TEMPLATE_FILE="$SCRIPT_DIR/tedge.rb.template"
 
-    AARCH64_URL=$(get_tedge_url "$TEDGE_PACKAGE" "arm64" "$tedge_version")
-    AARCH64_SHA256=$(get_tedge_sha256_checksum "$TEDGE_PACKAGE" "arm64" "$tedge_version")
+    AARCH64_URL=$(get_tedge_url "$REPO" "arm64" "$package_version")
+    AARCH64_SHA256=$(get_tedge_sha256_checksum "$REPO" "arm64" "$package_version")
 
-    X86_64_URL=$(get_tedge_url "$TEDGE_PACKAGE" "amd64" "$tedge_version")
-    X86_64_SHA256=$(get_tedge_sha256_checksum "$TEDGE_PACKAGE" "amd64" "$tedge_version")
+    X86_64_URL=$(get_tedge_url "$REPO" "amd64" "$package_version")
+    X86_64_SHA256=$(get_tedge_sha256_checksum "$REPO" "amd64" "$package_version")
 
     # Update template variables
     TEMPLATE=$(cat "$TEMPLATE_FILE")
 
     # Version
-    TEMPLATE="${TEMPLATE//\{\{VERSION\}\}/$tedge_version}"
+    TEMPLATE="${TEMPLATE//\{\{VERSION\}\}/$package_version}"
 
     # arm64
     TEMPLATE="${TEMPLATE//\{\{AARCH64_URL\}\}/$AARCH64_URL}"
@@ -88,11 +85,20 @@ update_version() {
     echo "Writing file: $output_file" >&2
     echo '# Code generated: DO NOT EDIT' > "$output_file"
     echo "$TEMPLATE" | tee -a "$output_file"
+
+    # return version (so it can be used by the caller)
+    echo "$package_version"
 }
+
+REPO="thinedge/tedge-dev"
 
 REST_ARGS=()
 while [ $# -gt 0 ]; do
     case "$1" in
+        --repo)
+            REPO="$2"
+            shift
+            ;;
         --help|-h)
             help
             exit 0
@@ -125,7 +131,7 @@ case "$COMMAND" in
         update_version
         ;;
     latest_version)
-        get_latest_version "$TEDGE_PACKAGE" "arm64"
+        get_latest_version "$REPO" "arm64"
         ;;
     *)
         echo "Unknown command: $COMMAND" >&2

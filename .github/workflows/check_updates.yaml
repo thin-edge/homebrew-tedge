@@ -11,10 +11,14 @@ jobs:
     env:
       CREATE_PR: 0
       PR_BRANCH: updater
+      REPO: thinedge/tedge-dev
     steps:
       - uses: actions/checkout@v4
       - name: Check update
-        run: ./scripts/admin.sh update_version
+        id: update
+        run: |
+          LATEST_VERSION=$(./scripts/admin.sh update_version --repo "$REPO" | tail -1)
+          echo "latest_version=$LATEST_VERSION" >> "$GITHUB_OUTPUT"
       - name: Create PR on new version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -27,7 +31,7 @@ jobs:
             exit 0
           fi
 
-          LATEST_VERSION=$(./scripts/admin.sh latest_version)
+          LATEST_VERSION="${{ steps.update.outputs.latest_version }}"
           echo "Changes detected. Raising PR"
           git status
           git config --global user.email "info@thin-edge.io"
