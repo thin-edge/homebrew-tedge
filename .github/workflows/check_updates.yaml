@@ -7,7 +7,7 @@ on:
 jobs:
   check_updates:
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'thin-edge'
+    if: github.repository_owner == 'reubenmiller'
     env:
       PR_BRANCH: updater
     steps:
