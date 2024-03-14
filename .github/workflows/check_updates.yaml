@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository_owner == 'reubenmiller'
     env:
+      CREATE_PR: 0
       PR_BRANCH: updater
     steps:
       - uses: actions/checkout@v4
@@ -25,12 +26,20 @@ jobs:
             echo "No changes detected"
             exit 0
           fi
+
+          LATEST_VERSION=$(./scripts/admin.sh latest_version)
           echo "Changes detected. Raising PR"
           git status
           git config --global user.email "info@thin-edge.io"
           git config --global user.name "Versioneer"
-          git checkout -b "$PR_BRANCH"
-          git commit -am "Update version"
-          git push --set-upstream origin "$PR_BRANCH"
-          gh repo set-default ${{github.repository}}
-          gh pr create --title "Update version" --body "Update version"
+
+          if [ "$CREATE_PR" = 0 ]; then
+            git commit -am "Update version to $LATEST_VERSION"
+            git push --set-upstream origin main
+          else
+            git checkout -b "$PR_BRANCH"
+            git commit -am "Update version to $LATEST_VERSION"
+            git push --set-upstream origin "$PR_BRANCH"
+            gh repo set-default ${{github.repository}}
+            gh pr create --title "Update version: $LATEST_VERSION" --body "Update version"
+          fi

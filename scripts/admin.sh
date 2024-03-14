@@ -15,6 +15,9 @@ COMMANDS
 EOT
 }
 
+TEDGE_CHANNEL="dev"
+TEDGE_PACKAGE="thinedge/tedge-$TEDGE_CHANNEL"
+
 get_latest_version() {
     repo="$1"
     arch="$2"
@@ -55,20 +58,18 @@ update_version() {
 
     echo "Updating version" >&2
     # thin-edge.io
-    tedge_channel="dev"
-    tedge_package="thinedge/tedge-$tedge_channel"
-    tedge_version=$(get_latest_version "$tedge_package" "arm64")
-    echo "Latest thin-edge.io version: $tedge_version in ($tedge_package)"
+    tedge_version=$(get_latest_version "$TEDGE_PACKAGE" "arm64")
+    echo "Latest thin-edge.io version: $tedge_version in ($TEDGE_PACKAGE)"
 
     # Generate file from a template
     output_file="$SCRIPT_DIR/../Formula/tedge.rb"
     TEMPLATE_FILE="$SCRIPT_DIR/tedge.rb.template"
 
-    AARCH64_URL=$(get_tedge_url "$tedge_package" "arm64" "$tedge_version")
-    AARCH64_SHA256=$(get_tedge_sha256_checksum "$tedge_package" "arm64" "$tedge_version")
+    AARCH64_URL=$(get_tedge_url "$TEDGE_PACKAGE" "arm64" "$tedge_version")
+    AARCH64_SHA256=$(get_tedge_sha256_checksum "$TEDGE_PACKAGE" "arm64" "$tedge_version")
 
-    X86_64_URL=$(get_tedge_url "$tedge_package" "amd64" "$tedge_version")
-    X86_64_SHA256=$(get_tedge_sha256_checksum "$tedge_package" "amd64" "$tedge_version")
+    X86_64_URL=$(get_tedge_url "$TEDGE_PACKAGE" "amd64" "$tedge_version")
+    X86_64_SHA256=$(get_tedge_sha256_checksum "$TEDGE_PACKAGE" "amd64" "$tedge_version")
 
     # Update template variables
     TEMPLATE=$(cat "$TEMPLATE_FILE")
@@ -122,6 +123,9 @@ COMMAND="$1"
 case "$COMMAND" in 
     update_version)
         update_version
+        ;;
+    latest_version)
+        get_latest_version "$TEDGE_PACKAGE" "arm64"
         ;;
     *)
         echo "Unknown command: $COMMAND" >&2
