@@ -15,7 +15,31 @@ brew tap thin-edge/tedge
 brew install tedge
 ```
 
-Afterwards you should be able to use the `tedge` command.
+Make sure you read the console output after installing thin-edge.io as it will help guide you how to run each of the different components (based on your context!).
+
+Below is an example of the output when run on MacOS with Apple Silicon (M*):
+
+```sh
+thin-edge.io has been installed with a default configuration file.
+You can make changes to the configuration by editing:
+    /opt/homebrew/etc/tedge/tedge.toml
+
+You need to manually edit the mosquitto configuration to add the following line:
+    sh -c 'echo include_dir /opt/homebrew/etc/tedge/mosquitto-conf >> "/opt/homebrew/etc/mosquitto/mosquitto.conf"'
+
+The following components can be started manually using:
+
+tedge:
+    /opt/homebrew/bin/tedge --config-dir "/opt/homebrew/etc/tedge" config set c8y.url "example.c8y.io"
+
+tedge-agent:
+    /opt/homebrew/bin/tedge-agent --config-dir "/opt/homebrew/etc/tedge"
+
+tedge-mapper-c8y:
+    /opt/homebrew/bin/tedge-mapper --config-dir "/opt/homebrew/etc/tedge" c8y
+```
+
+You can check the installed version by using the following command:
 
 ```sh
 tedge --version
