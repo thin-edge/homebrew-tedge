@@ -39,6 +39,11 @@ service_mgmt() {
 
     if [ $# -gt 0 ]; then
         NAME="$1"
+
+        # Use alias due to a limitation in the homebrew service naming
+        if [ "$NAME" = "tedge-mapper-c8y" ]; then
+            NAME=tedge-mapper-cumulocity
+        fi
         shift
     fi
 
