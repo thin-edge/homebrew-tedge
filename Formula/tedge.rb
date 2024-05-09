@@ -2,25 +2,20 @@
 class Tedge < Formula
     desc "IoT Device Management"
     homepage "https://thin-edge.io/"
-    version "1.0.2-rc273+gd05e9b6"
+    version "1.0.2-rc287+ge018063"
     license "Apache-2.0"
 
     depends_on "mosquitto" => :optional
 
     on_macos do
         on_arm do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-arm64/versions/1.0.2-rc273+gd05e9b6/tedge.tar.gz"
-            sha256 "e9f07787033dcf854145642dc23367ad745e46fe4cfe2a7e20c4fe3166abd490"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-arm64/versions/1.0.2-rc287+ge018063/tedge.tar.gz"
+            sha256 "5e9bc68ff97035ab8e479c6cfea6d3a3e6b47d963c1834d755b3eb35e8115ae6"
         end
         on_intel do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-amd64/versions/1.0.2-rc273+gd05e9b6/tedge.tar.gz"
-            sha256 "09d455c6ce2548a3cee5c412207fed741924d8b7efbec2083958a53d7f3c9a81"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-amd64/versions/1.0.2-rc287+ge018063/tedge.tar.gz"
+            sha256 "e94e00eb0eff42bb3551e1a8144f803c0f9a5157d05aba8f9e390df26a85aee0"
         end
-    end
-
-    resource "sm-plugin-brew" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/sm-plugins/brew"
-        sha256 "f29f7cffb93be0adb8b8376bc74e249c70703799ea048a653a2f29af33dc5204"
     end
 
     def user
@@ -57,18 +52,6 @@ class Tedge < Formula
         end
 
         system "tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
-
-        # Install sm-plugins in a shared folder
-        share_sm_plugins = (pkgshare/"sm-plugins")
-        share_sm_plugins.mkpath
-        resource("sm-plugin-brew").stage { share_sm_plugins.install "brew" }
-
-        # Symlink to the brew sm-plugin from the shared folder
-        # This allows users to remove the symlink if they don't want the sm-plugin
-        # rather than deleting the whole file
-        sm_plugins_dir = (etc/"tedge/sm-plugins")
-        sm_plugins_dir.install_symlink share_sm_plugins/"brew"
-        system "chmod", "555", "#{share_sm_plugins}/brew"
     end
 
     def caveats
