@@ -1,0 +1,100 @@
+#!/bin/sh
+set -e
+
+help() {
+    cat << EOT >&2
+thin-edge.io adapter to homebrew to control services
+
+SUBCOMMANDS
+    reboot
+    services <start|restart|stop|is_available|enable|disable|is_active> <SERVICE_NAME>
+
+EXAMPLES
+    $0 reboot
+    # Trigger a fake reboot
+
+    $0 services start tedge-agent
+    # Start tedge-agent
+
+    $0 services stop tedge-agent
+    # Stop tedge-agent
+
+    $0 services restart tedge-agent
+    # Restart tedge-agent
+EOT
+}
+
+if [ $# -lt 1 ]; then
+    help
+    exit 1
+fi
+
+COMMAND="$1"
+shift
+
+service_mgmt() {
+    SUBCOMMAND="$1"
+    shift
+    NAME=
+
+    if [ $# -gt 0 ]; then
+        NAME="$1"
+        shift
+    fi
+
+    fail_if_empty() {
+        if [ -z "$1" ]; then
+            echo "Service name is empty" >&2
+            exit 1
+        fi
+    }
+
+    case "$SUBCOMMAND" in
+        is_available)
+            brew services --help >/dev/null 2>&1
+            ;;
+        is_active)
+            fail_if_empty "$NAME"
+            brew services info "$NAME" | grep -q "PID:"
+            ;;
+        restart)
+            fail_if_empty "$NAME"
+            brew services restart "$NAME"
+            ;;
+        start)
+            fail_if_empty "$NAME"
+            brew services start "$NAME"
+            ;;
+        stop)
+            fail_if_empty "$NAME"
+            brew services stop "$NAME"
+            ;;
+        enable|disable)
+            # no-op
+            exit 0
+            ;;
+        *)
+            echo "Unknown command: '$SUBCOMMAND'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+
+case "$COMMAND" in 
+    services)
+        service_mgmt "$@"
+        ;;
+    
+    reboot)
+        echo "simulating a restart"
+        exit 0
+        ;;
+    *)
+        echo "Unknown command: '$COMMAND'" >&2
+        exit 1
+        ;;
+
+esac
+
+exit 0
