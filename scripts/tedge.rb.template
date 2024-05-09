@@ -17,6 +17,11 @@ class Tedge < Formula
         end
     end
 
+    resource "sm-plugin-brew" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/sm-plugins/brew"
+        sha256 "f29f7cffb93be0adb8b8376bc74e249c70703799ea048a653a2f29af33dc5204"
+    end
+
     def user
         Utils.safe_popen_read("id", "-un").chomp
     end
@@ -51,6 +56,18 @@ class Tedge < Formula
         end
 
         system "tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+
+        # Install sm-plugins in a shared folder
+        share_sm_plugins = (pkgshare/"sm-plugins")
+        share_sm_plugins.mkpath
+        resource("sm-plugin-brew").stage { share_sm_plugins.install "brew" }
+
+        # Symlink to the brew sm-plugin from the shared folder
+        # This allows users to remove the symlink if they don't want the sm-plugin
+        # rather than deleting the whole file
+        sm_plugins_dir = (etc/"tedge/sm-plugins")
+        sm_plugins_dir.install_symlink share_sm_plugins/"brew"
+        system "chmod", "555", "#{share_sm_plugins}/brew"
     end
 
     def caveats
