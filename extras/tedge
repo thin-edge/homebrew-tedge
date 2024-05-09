@@ -1,0 +1,41 @@
+#!/bin/zsh
+#
+# tedge wrapper to automatically set the custom config-dir
+# FIXME: Remove once https://github.com/thin-edge/thin-edge.io/issues/1794 is resolved
+#
+set -ex
+
+HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-}"
+if [ -z "$HOMEBREW_PREFIX" ]; then
+    HOMEBREW_PREFIX="$(brew --prefix)"
+fi
+
+TEDGE_CLI="$HOMEBREW_PREFIX/bin/tedge"
+CONFIG_DIR="${TE_CONFIG_DIR:-$HOMEBREW_PREFIX/etc/tedge}"
+
+EXTRA_ARGS=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --config-dir)
+            CONFIG_DIR="$2"
+            shift
+            ;;
+        --*|-*)
+            EXTRA_ARGS+=("$1")
+            ;;
+        *)
+            EXTRA_ARGS+=("$1")
+            ;;
+    esac
+    shift
+done
+
+if [ -n "$CONFIG_DIR" ]; then
+    if [ "${#EXTRA_ARGS[@]}" -eq 0 ]; then
+        "$TEDGE_CLI" --config-dir "$CONFIG_DIR" "${EXTRA_ARGS[@]}" --help
+    else
+        "$TEDGE_CLI" --config-dir "$CONFIG_DIR" "${EXTRA_ARGS[@]}"
+    fi
+else
+    "$TEDGE_CLI" "${EXTRA_ARGS[@]}"
+fi
