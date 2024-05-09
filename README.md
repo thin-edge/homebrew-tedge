@@ -50,11 +50,11 @@ tedge --version
 You can manually test the homebrew formula by checking out the project, and then running:
 
 ```sh
-HOMEBREW_NO_INSTALL_FROM_API=1 brew install --verbose --debug --build-from-source Formula/tedge.rb
+HOMEBREW_NO_INSTALL_FROM_API=1 brew install --verbose --build-from-source Formula/tedge.rb
 ```
 
 Or if you have already installed the package, then you need to run `reinstall`:
 
 ```sh
-HOMEBREW_NO_INSTALL_FROM_API=1 brew reinstall --verbose --debug --build-from-source Formula/tedge.rb
+HOMEBREW_NO_INSTALL_FROM_API=1 brew reinstall --verbose --build-from-source Formula/tedge.rb
 ```
