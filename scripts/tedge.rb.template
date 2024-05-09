@@ -22,6 +22,16 @@ class Tedge < Formula
         sha256 "f29f7cffb93be0adb8b8376bc74e249c70703799ea048a653a2f29af33dc5204"
     end
 
+    resource "brewctl" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/brewctl"
+        sha256 "30ce5cb403f0ae02fd604047dcbc9bf1491703c7a580ab1713e374c3f3e35c73"
+    end
+
+    resource "tedge-cli" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-cli"
+        sha256 "dcd11d32a38ad384d845a7052eeb9bd8f3912e15200e8553b16cda66214ec7d7"
+    end
+
     def user
         Utils.safe_popen_read("id", "-un").chomp
     end
@@ -32,6 +42,9 @@ class Tedge < Formula
 
     def install
         bin.install "tedge"
+
+        # Install tedge cli wrapper which has --config-dir pre-configured
+        resource("tedge-cli").stage { bin.install "tedge-cli" }
     end
 
     def post_install
@@ -42,6 +55,15 @@ class Tedge < Formula
             config_file.write <<~EOS
                 [sudo]
                 enable = false
+
+                [c8y]
+                root_cert_path = "#{HOMEBREW_PREFIX}/share/ca-certificates/cacert.pem"
+
+                [az]
+                root_cert_path = "#{HOMEBREW_PREFIX}/share/ca-certificates/cacert.pem"
+
+                [aws]
+                root_cert_path = "#{HOMEBREW_PREFIX}/share/ca-certificates/cacert.pem"
                 
                 [logs]
                 path = "#{var}/log/tedge"
@@ -55,7 +77,23 @@ class Tedge < Formula
             EOS
         end
 
-        system "tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+        system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+
+        # Add mosquitto configuration to persist across service restarts (e.g. db persistence)
+        custom_mosquitto_config_file = (etc/"tedge/mosquitto-conf/tedge-persistence.conf")
+        if !custom_mosquitto_config_file.exist?
+            custom_mosquitto_config_file.write <<~EOS
+                persistence true
+                persistence_location #{HOMEBREW_PREFIX}/var/mosquitto/
+                autosave_interval 10
+                autosave_on_changes true
+            EOS
+        end
+
+        # Ensure location of the mosquitto persistence file has the correct permissions
+        # otherwise mosquitto will ignore the file
+        ("#{HOMEBREW_PREFIX}/var/mosquitto").mkpath
+        system "chown", "-R", "#{user}:#{group}", "#{HOMEBREW_PREFIX}/var/mosquitto"
 
         # Install sm-plugins in a shared folder
         share_sm_plugins = (pkgshare/"sm-plugins")
@@ -68,6 +106,35 @@ class Tedge < Formula
         sm_plugins_dir = (etc/"tedge/sm-plugins")
         sm_plugins_dir.install_symlink share_sm_plugins/"brew"
         system "chmod", "555", "#{share_sm_plugins}/brew"
+        sm_plugins_dir = (etc/"tedge/sm-plugins")
+        sm_plugins_dir.install_symlink share_sm_plugins/"brew"
+
+        # Install scripts
+        shared_scripts = (pkgshare/"scripts")
+        shared_scripts.mkpath
+        resource("brewctl").stage { shared_scripts.install "brewctl" }
+        system "chmod", "555", "#{shared_scripts}/brewctl"
+        config_dir.install_symlink shared_scripts/"brewctl"
+
+        # system.toml settings
+        system_file = config_dir/"system.toml"
+        if !system_file.exist?
+            system_file.write <<~EOS
+                [system]
+                reboot = ["#{config_dir}/brewctl", "reboot"]
+                
+                [init]
+                name = "homebrew"
+                is_available = ["#{config_dir}/brewctl", "services", "is_available"]
+                restart = ["#{config_dir}/brewctl", "services", "restart", "{}"]
+                stop =  ["#{config_dir}/brewctl", "services", "stop", "{}"]
+                start =  ["#{config_dir}/brewctl", "services", "start", "{}"]
+                enable =  ["#{config_dir}/brewctl", "services", "enable", "{}"]
+                disable =  ["#{config_dir}/brewctl", "services", "disable", "{}"]
+                is_active = ["#{config_dir}/brewctl", "services", "is-active", "{}"]
+            EOS
+        end
+
     end
 
     def caveats
@@ -92,18 +159,6 @@ class Tedge < Formula
 
         EOS
     end
-
-    # TODO: homebrew does not support installing multiple services
-    # service do
-    #     name macos: "tedge-agent",
-    #          linux: "tedge-agent"
-    #     run ["#{HOMEBREW_PREFIX}/bin/tedge-agent", "--config-dir", etc/"tedge"]
-    #     keep_alive false
-    # end
-    # service do
-    #     run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "--config-dir", etc/"tedge", "c8y"]
-    #     keep_alive false
-    # end
 
     test do
         quiet_system "#{bin}/tedge", "--help"
