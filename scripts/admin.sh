@@ -90,7 +90,7 @@ update_version() {
     echo "$package_version"
 }
 
-REPO="thinedge/tedge-dev"
+REPO="thinedge/tedge-main"
 
 REST_ARGS=()
 while [ $# -gt 0 ]; do
