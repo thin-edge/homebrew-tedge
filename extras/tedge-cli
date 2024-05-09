@@ -3,7 +3,7 @@
 # tedge wrapper to automatically set the custom config-dir
 # FIXME: Remove once https://github.com/thin-edge/thin-edge.io/issues/1794 is resolved
 #
-set -ex
+set -e
 
 HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-}"
 if [ -z "$HOMEBREW_PREFIX" ]; then
