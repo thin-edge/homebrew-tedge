@@ -85,7 +85,7 @@ class Tedge < Formula
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
         # Workaround: create the file manually
-        remoteAccessHandlerFile = config_dir/"operations/c8y/c8y_RemoteAccessConnectoperations"
+        remoteAccessHandlerFile = config_dir/"operations/c8y/c8y_RemoteAccessConnect"
         remoteAccessHandlerFile.write <<~EOS
             [exec]
             command = "#{HOMEBREW_PREFIX}/bin/c8y-remote-access-plugin"
