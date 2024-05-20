@@ -25,7 +25,7 @@ class Tedge < Formula
 
     resource "brewctl" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/brewctl"
-        sha256 "30ce5cb403f0ae02fd604047dcbc9bf1491703c7a580ab1713e374c3f3e35c73"
+        sha256 "2e10aa682836e1c8db30de011b4486e618f7bc9a714783ecc4d86e049808c4ed"
     end
 
     resource "tedge-cli" do
@@ -83,7 +83,6 @@ class Tedge < Formula
         # Add mosquitto configuration to persist across service restarts (e.g. db persistence)
         # TODO: mosquitto can't load a file it saved itself due to the permissions not being correctly set (e.g. group is not set to "staff")
         #   Warning: File /opt/homebrew/var/mosquitto/mosquitto.db group is not staff. Future versions will refuse to load this file.
-        # Also
         custom_mosquitto_config_file = (etc/"tedge/mosquitto-conf/tedge-persistence.conf")
         if !custom_mosquitto_config_file.exist?
             custom_mosquitto_config_file.write <<~EOS
