@@ -87,7 +87,7 @@ class Tedge < Formula
         remoteAccessHandlerFile = config_dir/"operations/c8y/c8y_RemoteAccessConnect"
         remoteAccessHandlerFile.write <<~EOS
             [exec]
-            command = "#{HOMEBREW_PREFIX}/bin/c8y-remote-access-plugin"
+            command = "#{HOMEBREW_PREFIX}/bin/c8y-remote-access-plugin --config-dir #{etc}/tedge"
             topic = "c8y/s/ds"
             on_message = "530"
         EOS
