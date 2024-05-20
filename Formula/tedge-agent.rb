@@ -1,7 +1,7 @@
 class TedgeAgent < Formula
   desc "thin-edge.io tedge-agent service"
   homepage "https://thin-edge.io/"
-  version "1.0.0"
+  version "1.0.1"
   license "Apache-2.0"
   url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-agent-logs"
   sha256 "42dec6c7a1b2c53e7c29a4b73ddd7ccf3b2cbb916224d3fe57900a9320aae7bb"
@@ -22,7 +22,7 @@ class TedgeAgent < Formula
          linux: "tedge-agent"
     run ["#{HOMEBREW_PREFIX}/bin/tedge-agent", "--config-dir", etc/"tedge"]
     error_log_path var/"log/tedge-agent.log"
-    keep_alive crashed: true
+    keep_alive true
     restart_delay 5
   end
   def caveats

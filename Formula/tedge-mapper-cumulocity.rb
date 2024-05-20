@@ -1,7 +1,7 @@
 class TedgeMapperCumulocity < Formula
   desc "thin-edge.io tedge-mapper-c8y service"
   homepage "https://thin-edge.io/"
-  version "1.0.0"
+  version "1.0.1"
   license "Apache-2.0"
   url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-mapper-c8y-logs"
   sha256 "f04d2c22735a885904f4bd29283d98e253e5b2186300f212364b3039098bcb55"
@@ -22,7 +22,7 @@ class TedgeMapperCumulocity < Formula
          linux: "tedge-mapper-cumulocity"
     run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "--config-dir", etc/"tedge", "c8y"]
     error_log_path var/"log/tedge-mapper-c8y.log"
-    keep_alive crashed: true
+    keep_alive true
     restart_delay 5
   end
   def caveats
