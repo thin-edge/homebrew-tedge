@@ -5,6 +5,8 @@ class Tedge < Formula
     license "Apache-2.0"
 
     depends_on "mosquitto" => :optional
+    depends_on "tedge-agent" => :recommended
+    depends_on "tedge-mapper-cumulocity" => :recommended
 
     on_macos do
         on_arm do
@@ -148,16 +150,24 @@ class Tedge < Formula
             You need to manually edit the mosquitto configuration to add the following line:
                 sh -c 'echo include_dir #{etc}/tedge/mosquitto-conf >> "#{etc}/mosquitto/mosquitto.conf"'
             
-            The following components can be started manually using:
+            Onboarding instructions:
 
-            tedge:
-                #{HOMEBREW_PREFIX}/bin/tedge --config-dir "#{etc}/tedge" config set c8y.url "example.c8y.io"
+                tedge-cli cert create --device-id "tedge_on_macos"
+                tedge-cli config set c8y.url "$C8Y_DOMAIN"
+                tedge-cli cert upload c8y --user "$C8Y_USER"
+                tedge-cli connect c8y
 
-            tedge-agent:
-                #{HOMEBREW_PREFIX}/bin/tedge-agent --config-dir "#{etc}/tedge"
+
+            To view logs, run:
+
+                tedge-mapper-c8y-logs
+                tedge-agent-logs
             
-            tedge-mapper-c8y:
-                #{HOMEBREW_PREFIX}/bin/tedge-mapper --config-dir "#{etc}/tedge" c8y
+            
+            Service control:
+
+                brew services restart tedge-agent
+                brew services restart tedge-mapper-cumulocity
 
         EOS
     end
