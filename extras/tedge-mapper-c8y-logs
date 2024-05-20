@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+PREFIX=$(brew --prefix)
+tail "$@" -f "$PREFIX/var/log/tedge-mapper-c8y.log"

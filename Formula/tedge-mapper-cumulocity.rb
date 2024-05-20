@@ -3,34 +3,34 @@ class TedgeMapperCumulocity < Formula
   homepage "https://thin-edge.io/"
   version "1.0.0"
   license "Apache-2.0"
-  url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/Formula/tedge-mapper-cumulocity.rb"
-  sha256 "648dab0315a52d721cee80466297d9e0a59006e78437e353d74481f9f789c9cd"
+  url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-mapper-c8y-logs"
+  sha256 "f04d2c22735a885904f4bd29283d98e253e5b2186300f212364b3039098bcb55"
   depends_on "tedge" => :optional
 
+  resource "tedge-mapper-c8y-logs" do
+    url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-mapper-c8y-logs"
+    sha256 "f04d2c22735a885904f4bd29283d98e253e5b2186300f212364b3039098bcb55"
+  end
+
   def install  
-    # Create log helper
-    log_script = bin/"tedge-mapper-c8y-logs"
-    if !log_script.exist?
-        log_script.write <<~EOS
-            #!/bin/sh
-            set -e
-            tail -f "#{var}/log/tedge-mapper-c8y.log"
-        EOS
-    end
+    # log helper
+    resource("tedge-mapper-c8y-logs").stage { bin.install "tedge-mapper-c8y-logs" }
   end
 
   service do
-    name macos: "tedge-mapper-c8y",
-          linux: "tedge-mapper-c8y"
+    name macos: "tedge-mapper-cumulocity",
+         linux: "tedge-mapper-cumulocity"
     run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "--config-dir", etc/"tedge", "c8y"]
     error_log_path var/"log/tedge-mapper-c8y.log"
     keep_alive false
   end
   def caveats
     <<~EOS
-        tedge-mapper-c8y service
+        Note: Due to a homebrew limitation, the c8y mapper service is called "tedge-mapper-cumulocity"
+        instead of the expected "tedge-mapper-c8y". The brewctl script will handle the service alias
+        for you, e.g. "brewctl start tedge-mapper-c8y" will actually start the homebrew "tedge-mapper-cumulocity" service
 
-        View the logs using:
+        View the service logs using:
           tedge-mapper-c8y-logs
     EOS
   end

@@ -3,19 +3,18 @@ class TedgeAgent < Formula
   homepage "https://thin-edge.io/"
   version "1.0.0"
   license "Apache-2.0"
-  url "https://thin-edge.io/"
+  url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-agent-logs"
+  sha256 "42dec6c7a1b2c53e7c29a4b73ddd7ccf3b2cbb916224d3fe57900a9320aae7bb"
   depends_on "tedge" => :optional
 
+  resource "tedge-agent-logs" do
+    url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-agent-logs"
+    sha256 "42dec6c7a1b2c53e7c29a4b73ddd7ccf3b2cbb916224d3fe57900a9320aae7bb"
+  end
+
   def install
-    # Create log helper
-    log_script = bin/"tedge-agent-logs"
-    if !log_script.exist?
-        log_script.write <<~EOS
-            #!/bin/sh
-            set -e
-            tail -f "#{var}/log/tedge-agent.log"
-        EOS
-    end
+    # log helper
+    resource("tedge-agent-logs").stage { bin.install "tedge-agent-logs" }
   end
 
   service do
@@ -27,9 +26,7 @@ class TedgeAgent < Formula
   end
   def caveats
     <<~EOS
-        tedge-agent service
-
-        View the logs using:
+        View the service logs using:
           tedge-agent-logs
     EOS
   end
