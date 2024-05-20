@@ -95,8 +95,8 @@ class Tedge < Formula
 
         # Ensure location of the mosquitto persistence file has the correct permissions
         # otherwise mosquitto will ignore the file
-        ("#{HOMEBREW_PREFIX}/var/mosquitto").mkpath
-        system "chown", "-R", "#{user}:#{group}", "#{HOMEBREW_PREFIX}/var/mosquitto"
+        (var/"mosquitto").mkpath
+        system "chown", "-R", "#{user}:#{group}", "#{var}/mosquitto"
 
         # Install sm-plugins in a shared folder
         share_sm_plugins = (pkgshare/"sm-plugins")
