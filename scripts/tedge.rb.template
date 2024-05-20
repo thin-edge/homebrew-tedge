@@ -80,6 +80,7 @@ class Tedge < Formula
         end
 
         system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+        system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
 
         # Add mosquitto configuration to persist across service restarts (e.g. db persistence)
         # TODO: mosquitto can't load a file it saved itself due to the permissions not being correctly set (e.g. group is not set to "staff")
