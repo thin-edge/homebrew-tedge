@@ -80,7 +80,17 @@ class Tedge < Formula
         end
 
         system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
-        system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
+
+        # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
+        # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
+        # Workaround: create the file manually
+        remoteAccessHandlerFile = config_dir/"operations/c8y/c8y_RemoteAccessConnectoperations"
+        remoteAccessHandlerFile.write <<~EOS
+            [exec]
+            command = "#{HOMEBREW_PREFIX}/bin/c8y-remote-access-plugin"
+            topic = "c8y/s/ds"
+            on_message = "530"
+        EOS
 
         # Add mosquitto configuration to persist across service restarts (e.g. db persistence)
         # TODO: mosquitto can't load a file it saved itself due to the permissions not being correctly set (e.g. group is not set to "staff")
