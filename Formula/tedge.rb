@@ -86,6 +86,7 @@ class Tedge < Formula
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
         # Workaround: create the file manually
         remoteAccessHandlerFile = config_dir/"operations/c8y/c8y_RemoteAccessConnect"
+        rm_f remoteAccessHandlerFile
         remoteAccessHandlerFile.write <<~EOS
             [exec]
             command = "#{HOMEBREW_PREFIX}/bin/c8y-remote-access-plugin --config-dir #{etc}/tedge"
