@@ -22,7 +22,8 @@ class TedgeMapperCumulocity < Formula
          linux: "tedge-mapper-cumulocity"
     run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "--config-dir", etc/"tedge", "c8y"]
     error_log_path var/"log/tedge-mapper-c8y.log"
-    keep_alive false
+    keep_alive crashed: true
+    restart_delay 5
   end
   def caveats
     <<~EOS

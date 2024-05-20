@@ -22,7 +22,8 @@ class TedgeAgent < Formula
          linux: "tedge-agent"
     run ["#{HOMEBREW_PREFIX}/bin/tedge-agent", "--config-dir", etc/"tedge"]
     error_log_path var/"log/tedge-agent.log"
-    keep_alive false
+    keep_alive crashed: true
+    restart_delay 5
   end
   def caveats
     <<~EOS
