@@ -29,6 +29,27 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
+command_exists() {
+    command -V "$1" >/dev/null 2>&1
+}
+
+
+# 
+# Find brew path
+#
+BREW="${BREW:-brew}"
+
+# Use full path to brew
+if ! command_exists "$BREW"; then
+    if [ -f /opt/homebrew/bin/brew ]; then
+        BREW="/opt/homebrew/bin/brew"
+    elif [ -f /usr/local/bin/brew ]; then
+        BREW="/usr/local/bin/brew"
+    elif [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+        BREW="/home/linuxbrew/.linuxbrew/bin/brew"
+    fi
+fi
+
 COMMAND="$1"
 shift
 
@@ -56,23 +77,23 @@ service_mgmt() {
 
     case "$SUBCOMMAND" in
         is_available)
-            brew services --help >/dev/null 2>&1
+            "$BREW" services --help >/dev/null 2>&1
             ;;
         is_active)
             fail_if_empty "$NAME"
-            brew services info "$NAME" | grep -q "PID:"
+            "$BREW" services info "$NAME" | grep -q "PID:"
             ;;
         restart)
             fail_if_empty "$NAME"
-            brew services restart "$NAME"
+            "$BREW" services restart "$NAME"
             ;;
         start)
             fail_if_empty "$NAME"
-            brew services start "$NAME"
+            "$BREW" services start "$NAME"
             ;;
         stop)
             fail_if_empty "$NAME"
-            brew services stop "$NAME"
+            "$BREW" services stop "$NAME"
             ;;
         enable|disable)
             # no-op
