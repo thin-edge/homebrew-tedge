@@ -92,7 +92,7 @@ case "$COMMAND" in
     prepare)
         ;;
     list)
-        if ! command_exists brew; then
+        if ! command_exists "$BREW"; then
             log "The brew command was not found! This is very unexpected" >&2
             exit "$EXIT_USAGE"
         fi

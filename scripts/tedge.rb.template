@@ -21,7 +21,7 @@ class Tedge < Formula
 
     resource "sm-plugin-brew" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/sm-plugins/brew"
-        sha256 "360603e6c70f6c9aadcf96bb2bf6bff400e4d38ecb2c1be0c522e177d292ce77"
+        sha256 "f6c42a2e1e205af6a3f615e50fd07c283bab94d4bee7912014b7c2a92e42e35c"
     end
 
     resource "brewctl" do
