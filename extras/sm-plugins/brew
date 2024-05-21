@@ -70,6 +70,24 @@ command_exists() {
     command -V "$1" >/dev/null 2>&1
 }
 
+# 
+# Find brew path
+#
+BREW="${BREW:-brew}"
+
+# Use full path to brew
+if ! command_exists "$BREW"; then
+    if [ -f /opt/homebrew/bin/brew ]; then
+        BREW="/opt/homebrew/bin/brew"
+    elif [ -f /usr/local/bin/brew ]; then
+        BREW="/usr/local/bin/brew"
+    elif [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+        BREW="/home/linuxbrew/.linuxbrew/bin/brew"
+    fi
+fi
+
+echo "Using brew bin: $BREW" >&2
+
 case "$COMMAND" in
     prepare)
         ;;
@@ -79,7 +97,7 @@ case "$COMMAND" in
             exit "$EXIT_USAGE"
         fi
 
-        brew list --versions | tr ' ' '\t'
+        "$BREW" list --versions | tr ' ' '\t'
         ;;
     install)
         if [ -n "$FILE" ]; then
@@ -95,13 +113,13 @@ case "$COMMAND" in
 
             log "Pouring brew (by name): brew install $MODULE_COMMAND $BREW_INSTALL_OPTIONS"
             # shellcheck disable=SC2086
-            brew install "$MODULE_COMMAND" $BREW_INSTALL_OPTIONS || exit "$EXIT_FAILURE"
+            "$BREW" install "$MODULE_COMMAND" $BREW_INSTALL_OPTIONS || exit "$EXIT_FAILURE"
         fi
         ;;
     remove)
         # Removing
         # shellcheck disable=SC2086
-        brew uninstall "$MODULE_NAME" $BREW_REMOVE_OPTIONS || exit "$EXIT_FAILURE"
+        "$BREW" uninstall "$MODULE_NAME" $BREW_REMOVE_OPTIONS || exit "$EXIT_FAILURE"
         ;;
     update-list)
         # Not supported, use remove install and remove instead
