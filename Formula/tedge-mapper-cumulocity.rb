@@ -20,7 +20,8 @@ class TedgeMapperCumulocity < Formula
   service do
     name macos: "tedge-mapper-cumulocity",
          linux: "tedge-mapper-cumulocity"
-    run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "--config-dir", etc/"tedge", "c8y"]
+    run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "c8y"]
+    environment_variables TEDGE_CONFIG_DIR: etc/"tedge"
     error_log_path var/"log/tedge-mapper-c8y.log"
     keep_alive true
     restart_delay 5

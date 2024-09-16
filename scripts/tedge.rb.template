@@ -29,11 +29,6 @@ class Tedge < Formula
         sha256 "78d48cacf66b98a8335c5b4834a3e7507bef4b16d230cb728a839dd5bcca6b8a"
     end
 
-    resource "tedge-cli" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-cli"
-        sha256 "dcd11d32a38ad384d845a7052eeb9bd8f3912e15200e8553b16cda66214ec7d7"
-    end
-
     def user
         Utils.safe_popen_read("id", "-un").chomp
     end
@@ -44,9 +39,6 @@ class Tedge < Formula
 
     def install
         bin.install "tedge"
-
-        # Install tedge cli wrapper which has --config-dir pre-configured
-        resource("tedge-cli").stage { bin.install "tedge-cli" }
     end
 
     def post_install
@@ -91,7 +83,7 @@ class Tedge < Formula
         rm_f remoteAccessHandlerFile
         remoteAccessHandlerFile.write <<~EOS
             [exec]
-            command = "#{HOMEBREW_PREFIX}/bin/c8y-remote-access-plugin --config-dir #{etc}/tedge"
+            command = "#{HOMEBREW_PREFIX}/bin/c8y-remote-access-plugin"
             topic = "c8y/s/ds"
             on_message = "530"
         EOS
@@ -164,13 +156,17 @@ class Tedge < Formula
 
             You need to manually edit the mosquitto configuration to add the following line:
                 sh -c 'echo include_dir #{etc}/tedge/mosquitto-conf >> "#{etc}/mosquitto/mosquitto.conf"'
-            
+
+            Configure your zsh profile then reload it
+                sh -c 'export TEDGE_CONFIG_DIR="#{etc}/tedge"' >> $HOME/.zshrc
+                . $HOME/.zshrc
+
             Onboarding instructions:
 
-                tedge-cli cert create --device-id "tedge_on_macos"
-                tedge-cli config set c8y.url "$C8Y_DOMAIN"
-                tedge-cli cert upload c8y --user "$C8Y_USER"
-                tedge-cli connect c8y
+                tedge cert create --device-id "tedge_on_macos"
+                tedge config set c8y.url "$C8Y_DOMAIN"
+                tedge cert upload c8y --user "$C8Y_USER"
+                tedge connect c8y
 
 
             To view logs, run:

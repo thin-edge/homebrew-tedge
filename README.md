@@ -30,13 +30,16 @@ You need to manually edit the mosquitto configuration to add the following line:
 The following components can be started manually using:
 
 tedge:
-    /opt/homebrew/bin/tedge --config-dir "/opt/homebrew/etc/tedge" config set c8y.url "example.c8y.io"
+    export TEDGE_CONFIG_DIR=/opt/homebrew/etc/tedge
+    /opt/homebrew/bin/tedge config set c8y.url "example.c8y.io"
 
 tedge-agent:
-    /opt/homebrew/bin/tedge-agent --config-dir "/opt/homebrew/etc/tedge"
+    export TEDGE_CONFIG_DIR=/opt/homebrew/etc/tedge
+    /opt/homebrew/bin/tedge-agent
 
 tedge-mapper-c8y:
-    /opt/homebrew/bin/tedge-mapper --config-dir "/opt/homebrew/etc/tedge" c8y
+    export TEDGE_CONFIG_DIR=/opt/homebrew/etc/tedge
+    /opt/homebrew/bin/tedge-mapper c8y
 ```
 
 You can check the installed version by using the following command:
