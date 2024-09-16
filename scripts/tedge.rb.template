@@ -158,8 +158,8 @@ class Tedge < Formula
                 sh -c 'echo include_dir #{etc}/tedge/mosquitto-conf >> "#{etc}/mosquitto/mosquitto.conf"'
 
             Configure your zsh profile then reload it
-                sh -c 'export TEDGE_CONFIG_DIR="#{etc}/tedge"' >> $HOME/.zshrc
-                . $HOME/.zshrc
+                sh -c 'echo export TEDGE_CONFIG_DIR=\"#{etc}/tedge\"' >> "$HOME/.zshrc"
+                . "$HOME/.zshrc"
 
             Onboarding instructions:
 
