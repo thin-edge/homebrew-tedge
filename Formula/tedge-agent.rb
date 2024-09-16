@@ -20,7 +20,8 @@ class TedgeAgent < Formula
   service do
     name macos: "tedge-agent",
          linux: "tedge-agent"
-    run ["#{HOMEBREW_PREFIX}/bin/tedge-agent", "--config-dir", etc/"tedge"]
+    run ["#{HOMEBREW_PREFIX}/bin/tedge-agent"]
+    environment_variables TEDGE_CONFIG_DIR: etc/"tedge"
     error_log_path var/"log/tedge-agent.log"
     keep_alive true
     restart_delay 5
