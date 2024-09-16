@@ -1,7 +1,7 @@
 class Tedge < Formula
     desc "IoT Device Management"
     homepage "https://thin-edge.io/"
-    version "{{VERSION}}"
+    version "$VERSION"
     license "Apache-2.0"
 
     depends_on "mosquitto" => :optional
@@ -10,12 +10,12 @@ class Tedge < Formula
 
     on_macos do
         on_arm do
-            url "{{AARCH64_URL}}"
-            sha256 "{{AARCH64_SHA256}}"
+            url "$AARCH64_URL"
+            sha256 "$AARCH64_SHA256"
         end
         on_intel do
-            url "{{X86_64_URL}}"
-            sha256 "{{X86_64_SHA256}}"
+            url "$X86_64_URL"
+            sha256 "$X86_64_SHA256"
         end
     end
 

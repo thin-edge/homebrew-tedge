@@ -58,9 +58,7 @@ update_version() {
     package_version=$(get_latest_version "$REPO" "arm64")
     echo "Latest thin-edge.io version: $package_version in ($REPO)"
 
-    # Generate file from a template
-    output_file="$SCRIPT_DIR/../Formula/tedge.rb"
-    TEMPLATE_FILE="$SCRIPT_DIR/tedge.rb.template"
+    # Get template variables
 
     AARCH64_URL=$(get_tedge_url "$REPO" "arm64" "$package_version")
     AARCH64_SHA256=$(get_tedge_sha256_checksum "$REPO" "arm64" "$package_version")
@@ -68,26 +66,37 @@ update_version() {
     X86_64_URL=$(get_tedge_url "$REPO" "amd64" "$package_version")
     X86_64_SHA256=$(get_tedge_sha256_checksum "$REPO" "amd64" "$package_version")
 
-    # Update template variables
-    TEMPLATE=$(cat "$TEMPLATE_FILE")
+    export VERSION="$package_version"
+    export AARCH64_URL
+    export AARCH64_SHA256
+    export X86_64_URL
+    export X86_64_SHA256
 
-    # Version
-    TEMPLATE="${TEMPLATE//\{\{VERSION\}\}/$package_version}"
-
-    # arm64
-    TEMPLATE="${TEMPLATE//\{\{AARCH64_URL\}\}/$AARCH64_URL}"
-    TEMPLATE="${TEMPLATE//\{\{AARCH64_SHA256\}\}/$AARCH64_SHA256}"
-
-    # amd64
-    TEMPLATE="${TEMPLATE//\{\{X86_64_URL\}\}/$X86_64_URL}"
-    TEMPLATE="${TEMPLATE//\{\{X86_64_SHA256\}\}/$X86_64_SHA256}"
-
-    echo "Writing file: $output_file" >&2
-    echo '# Code generated: DO NOT EDIT' > "$output_file"
-    echo "$TEMPLATE" | tee -a "$output_file"
+    # Generate files from templates
+    expand_templates "$SCRIPT_DIR/../Formula" scripts/*.template.*
 
     # return version (so it can be used by the caller)
     echo "$package_version"
+}
+
+expand_templates() {
+    OUTPUT_DIR="$1"
+    shift
+
+    while [ $# -gt 0 ]; do
+        TEMPLATE_FILE="$1"
+        OUTPUT_FILE="$OUTPUT_DIR/$(basename "$TEMPLATE_FILE" | sed 's/.template//g')"
+        shift
+
+        echo "Generating file from template: $TEMPLATE_FILE" >&2
+
+        # shellcheck disable=SC2016
+        CONTENTS=$(envsubst '$VERSION,$AARCH64_URL,$AARCH64_SHA256,$X86_64_URL,$X86_64_SHA256' < "$TEMPLATE_FILE")
+
+        echo "Writing file: $OUTPUT_FILE" >&2
+        echo '# Code generated: DO NOT EDIT' > "$OUTPUT_FILE"
+        echo "$CONTENTS" | tee -a "$OUTPUT_FILE"
+    done
 }
 
 REPO="thinedge/tedge-main"
@@ -126,7 +135,7 @@ if [ $# -eq 0 ]; then
 fi
 
 COMMAND="$1"
-case "$COMMAND" in 
+case "$COMMAND" in
     update_version)
         update_version
         ;;
