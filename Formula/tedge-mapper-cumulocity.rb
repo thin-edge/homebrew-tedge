@@ -2,7 +2,7 @@
 class TedgeMapperCumulocity < Formula
   desc "thin-edge.io tedge-mapper-c8y service"
   homepage "https://thin-edge.io/"
-  version "1.4.0"
+  version "1.4.1"
   license "Apache-2.0"
   url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-mapper-c8y-logs"
   sha256 "f04d2c22735a885904f4bd29283d98e253e5b2186300f212364b3039098bcb55"
