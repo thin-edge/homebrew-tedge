@@ -48,6 +48,31 @@ You can check the installed version by using the following command:
 tedge --version
 ```
 
+### Install main branch release
+
+You can install the latest pre-release version (which is built from the main branch of the project). This is useful if you want to try out the new features as soon as they've been merged and not have to wait until the next release.
+
+It's best to also install official version as well as you still need to run the same post installation instructions on the first time, so be sure to follow the on-screen instructions when installing any homebrew packages.
+
+Install the latest pre-release version using:
+
+```sh
+brew tap thin-edge/tedge
+brew install tedge-main
+```
+
+If you've previously install the `tedge` package then after the installation you'll need to unlink the `tedge` package and then link the `tedge-main` package (though both packages provide the `tedge` binary, hence why we're linking/unlinking things in homebrew).
+
+```sh
+brew unlink tedge; brew link tedge-main
+```
+
+If you want to switch back to the official release (and you have the `tedge` package installed), then run:
+
+```sh
+brew unlink tedge-main; brew link tedge
+```
+
 ## Testing
 
 You can manually test the homebrew formula by checking out the project, and then running:
