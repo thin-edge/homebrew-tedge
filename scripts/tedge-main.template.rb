@@ -159,6 +159,8 @@ class TedgeMain < Formula
 
             Configure your zsh profile then reload it
                 sh -c 'echo export TEDGE_CONFIG_DIR=\"#{etc}/tedge\"' >> "$HOME/.zshrc"
+                sh -c 'echo "source <(tedge completions zsh)"' >> "$HOME/.zshrc"
+                
                 . "$HOME/.zshrc"
 
             Onboarding instructions:
