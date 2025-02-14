@@ -1,4 +1,3 @@
-# Code generated: DO NOT EDIT
 class TedgeMapperCumulocity < Formula
   desc "thin-edge.io tedge-mapper-c8y service"
   homepage "https://thin-edge.io/"

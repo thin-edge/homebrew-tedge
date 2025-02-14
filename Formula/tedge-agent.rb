@@ -1,4 +1,3 @@
-# Code generated: DO NOT EDIT
 class TedgeAgent < Formula
   desc "thin-edge.io tedge-agent service"
   homepage "https://thin-edge.io/"
