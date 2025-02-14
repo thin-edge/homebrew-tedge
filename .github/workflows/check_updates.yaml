@@ -11,13 +11,12 @@ jobs:
     env:
       CREATE_PR: 0
       PR_BRANCH: updater
-      REPO: thinedge/tedge-release
     steps:
       - uses: actions/checkout@v4
       - name: Check update
         id: update
         run: |
-          LATEST_VERSION=$(./scripts/admin.sh update_version --repo "$REPO" | tail -1)
+          LATEST_VERSION=$(./scripts/admin.sh update_version | tail -1)
           echo "latest_version=$LATEST_VERSION" >> "$GITHUB_OUTPUT"
       - name: Create PR on new version
         env:

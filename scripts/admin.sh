@@ -11,7 +11,7 @@ USAGE
     $0 <COMMAND> [OPTIONS]
 
 COMMANDS
-    $0 update_version          Update the homewbrew formula for thin-edge.io to the latest version
+    $0 update_version          Update the homebrew formula for thin-edge.io to the latest version
 EOT
 }
 
@@ -38,6 +38,32 @@ get_tedge_url() {
     | jq -r '.data[] | .files[0].cdn_url'
 }
 
+generate_formula() {
+    repo="$1"
+    templates="$2"
+
+     # thin-edge.io
+    package_version=$(get_latest_version "$repo" "arm64")
+    echo "Latest thin-edge.io version: $package_version in ($repo)" >&2
+
+    # Get template variables
+
+    AARCH64_URL=$(get_tedge_url "$repo" "arm64" "$package_version")
+    AARCH64_SHA256=$(get_tedge_sha256_checksum "$repo" "arm64" "$package_version")
+
+    X86_64_URL=$(get_tedge_url "$repo" "amd64" "$package_version")
+    X86_64_SHA256=$(get_tedge_sha256_checksum "$repo" "amd64" "$package_version")
+
+    export VERSION="$package_version"
+    export AARCH64_URL
+    export AARCH64_SHA256
+    export X86_64_URL
+    export X86_64_SHA256
+
+    # Generate files from templates
+    expand_templates "$SCRIPT_DIR/../Formula" "$templates"
+    echo "$VERSION"
+}
 
 update_version() {
     # Install tooling if missing
@@ -54,29 +80,15 @@ update_version() {
     fi
 
     echo "Updating version" >&2
-    # thin-edge.io
-    package_version=$(get_latest_version "$REPO" "arm64")
-    echo "Latest thin-edge.io version: $package_version in ($REPO)"
 
-    # Get template variables
+    # official release
+    official_version=$(generate_formula "$REPO" scripts/tedge.template.rb)
 
-    AARCH64_URL=$(get_tedge_url "$REPO" "arm64" "$package_version")
-    AARCH64_SHA256=$(get_tedge_sha256_checksum "$REPO" "arm64" "$package_version")
-
-    X86_64_URL=$(get_tedge_url "$REPO" "amd64" "$package_version")
-    X86_64_SHA256=$(get_tedge_sha256_checksum "$REPO" "amd64" "$package_version")
-
-    export VERSION="$package_version"
-    export AARCH64_URL
-    export AARCH64_SHA256
-    export X86_64_URL
-    export X86_64_SHA256
-
-    # Generate files from templates
-    expand_templates "$SCRIPT_DIR/../Formula" scripts/*.template.*
+    # main branch release
+    main_version=$(generate_formula "$REPO_MAIN" scripts/tedge@main.template.rb)
 
     # return version (so it can be used by the caller)
-    echo "$package_version"
+    printf 'release=%s, main=%s\n' "$official_version" "$main_version"
 }
 
 expand_templates() {
@@ -91,21 +103,26 @@ expand_templates() {
         echo "Generating file from template: $TEMPLATE_FILE" >&2
 
         # shellcheck disable=SC2016
-        CONTENTS=$(envsubst '$VERSION,$AARCH64_URL,$AARCH64_SHA256,$X86_64_URL,$X86_64_SHA256' < "$TEMPLATE_FILE")
+        CONTENTS=$(envsubst '$VERSION,$AARCH64_URL,$AARCH64_SHA256,$X86_64_URL,$X86_64_SHA256,$DEVELOP_VERSION,$DEVELOP_AARCH64_URL,$DEVELOP_AARCH64_SHA256,$DEVELOP_X86_64_URL,$DEVELOP_X86_64_SHA256' < "$TEMPLATE_FILE")
 
         echo "Writing file: $OUTPUT_FILE" >&2
         echo '# Code generated: DO NOT EDIT' > "$OUTPUT_FILE"
-        echo "$CONTENTS" | tee -a "$OUTPUT_FILE"
+        echo "$CONTENTS" >> "$OUTPUT_FILE"
     done
 }
 
-REPO="thinedge/tedge-main"
+REPO="${REPO:-thinedge/tedge-release}"
+REPO_MAIN="${REPO_MAIN:-thinedge/tedge-main}"
 
 REST_ARGS=()
 while [ $# -gt 0 ]; do
     case "$1" in
         --repo)
             REPO="$2"
+            shift
+            ;;
+        --repo-main)
+            REPO_MAIN="$2"
             shift
             ;;
         --help|-h)
