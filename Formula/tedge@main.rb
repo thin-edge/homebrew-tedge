@@ -5,6 +5,8 @@ class TedgeATmain < Formula
     version "1.4.3-rc141+gaf72d0d"
     license "Apache-2.0"
 
+    keg_only :versioned_formula
+
     depends_on "mosquitto" => :optional
     depends_on "tedge-agent" => :recommended
     depends_on "tedge-mapper-cumulocity" => :recommended
