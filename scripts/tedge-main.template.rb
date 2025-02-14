@@ -180,6 +180,11 @@ class TedgeMain < Formula
                 brew services restart tedge-agent
                 brew services restart tedge-mapper-cumulocity
 
+            To switch to using tedge-main by default
+                brew unlink tedge; brew link tedge-main
+
+            To switch back from tedge-main to tedge
+                brew unlink tedge-main; brew link tedge
         EOS
     end
 

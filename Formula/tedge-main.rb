@@ -2,7 +2,7 @@
 class TedgeMain < Formula
     desc "IoT Device Management"
     homepage "https://thin-edge.io/"
-    version "1.4.3-rc141+gaf72d0d"
+    version "1.4.3-rc144+g0fe27a1"
     license "Apache-2.0"
 
     depends_on "mosquitto" => :optional
@@ -11,12 +11,12 @@ class TedgeMain < Formula
 
     on_macos do
         on_arm do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-arm64/versions/1.4.3-rc141+gaf72d0d/tedge.tar.gz"
-            sha256 "8afe0164864b7d20dc601996272b27fdac1a09c3e6cae5d2e14466580f5d3c10"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-arm64/versions/1.4.3-rc144+g0fe27a1/tedge.tar.gz"
+            sha256 "433eedbc88c5366f78b2c429a22570ebf50eb3d6adc8796ceb1814632bd158e6"
         end
         on_intel do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-amd64/versions/1.4.3-rc141+gaf72d0d/tedge.tar.gz"
-            sha256 "9e30aadc90d5d838d760788ea2e1b1c9d9b5c4ffb9d1f83561d1ab9171635ff0"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-amd64/versions/1.4.3-rc144+g0fe27a1/tedge.tar.gz"
+            sha256 "6a4bdd9cf77716abaa9a59025dd3300d7c8c6226ddc470ff4731c3c470f557d1"
         end
     end
 
@@ -181,6 +181,11 @@ class TedgeMain < Formula
                 brew services restart tedge-agent
                 brew services restart tedge-mapper-cumulocity
 
+            To switch to using tedge-main by default
+                brew unlink tedge; brew link tedge-main
+
+            To switch back from tedge-main to tedge
+                brew unlink tedge-main; brew link tedge
         EOS
     end
 
