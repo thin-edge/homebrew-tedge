@@ -85,7 +85,7 @@ update_version() {
     official_version=$(generate_formula "$REPO" scripts/tedge.template.rb)
 
     # main branch release
-    main_version=$(generate_formula "$REPO_MAIN" scripts/tedge@main.template.rb)
+    main_version=$(generate_formula "$REPO_MAIN" scripts/tedge-main.template.rb)
 
     # return version (so it can be used by the caller)
     printf 'release=%s, main=%s\n' "$official_version" "$main_version"
