@@ -17,42 +17,46 @@ EOT
 
 get_latest_version() {
     repo="$1"
-    arch="$2"
-    cloudsmith ls pkg "$repo" -q "tag:latest AND name:tedge-macos-$arch AND format:raw" -F json -l 1 \
+    package="$2"
+    arch="$3"
+    cloudsmith ls pkg "$repo" -q "tag:latest AND name:$package-macos-$arch AND format:raw" -F json -l 1 \
     | jq -r '.data[] | .version'
 }
 
-get_tedge_sha256_checksum() {
+get_package_sha256_checksum() {
     repo="$1"
-    arch="$2"
-    version="$3"
-    cloudsmith ls pkg "$repo" -q "version:^$version$ AND name:tedge-macos-$arch AND format:raw" -F json -l 1 \
+    package="$2"
+    arch="$3"
+    version="$4"
+    cloudsmith ls pkg "$repo" -q "version:^$version$ AND name:$package-macos-$arch AND format:raw" -F json -l 1 \
     | jq -r '.data[] | .files[0].checksum_sha256'
 }
 
-get_tedge_url() {
+get_package_url() {
     repo="$1"
-    arch="$2"
-    version="$3"
-    cloudsmith ls pkg "$repo" -q "version:^$version$ AND name:tedge-macos-$arch AND format:raw" -F json -l 1 \
+    package="$2"
+    arch="$3"
+    version="$4"
+    cloudsmith ls pkg "$repo" -q "version:^$version$ AND name:$package-macos-$arch AND format:raw" -F json -l 1 \
     | jq -r '.data[] | .files[0].cdn_url'
 }
 
 generate_formula() {
     repo="$1"
-    templates="$2"
+    package="$2"
+    templates="$3"
 
      # thin-edge.io
-    package_version=$(get_latest_version "$repo" "arm64")
+    package_version=$(get_latest_version "$repo" "$package" "arm64")
     echo "Latest thin-edge.io version: $package_version in ($repo)" >&2
 
     # Get template variables
 
-    AARCH64_URL=$(get_tedge_url "$repo" "arm64" "$package_version")
-    AARCH64_SHA256=$(get_tedge_sha256_checksum "$repo" "arm64" "$package_version")
+    AARCH64_URL=$(get_package_url "$repo" "$package" "arm64" "$package_version")
+    AARCH64_SHA256=$(get_package_sha256_checksum "$repo" "$package" "arm64" "$package_version")
 
-    X86_64_URL=$(get_tedge_url "$repo" "amd64" "$package_version")
-    X86_64_SHA256=$(get_tedge_sha256_checksum "$repo" "amd64" "$package_version")
+    X86_64_URL=$(get_package_url "$repo" "$package" "amd64" "$package_version")
+    X86_64_SHA256=$(get_package_sha256_checksum "$repo" "$package" "amd64" "$package_version")
 
     export VERSION="$package_version"
     export AARCH64_URL
@@ -82,10 +86,15 @@ update_version() {
     echo "Updating version" >&2
 
     # official release
-    official_version=$(generate_formula "$REPO" scripts/tedge.template.rb)
+    official_version=$(generate_formula "$REPO" "tedge" scripts/tedge.template.rb)
 
     # main branch release
-    main_version=$(generate_formula "$REPO_MAIN" scripts/tedge-main.template.rb)
+    main_version=$(generate_formula "$REPO_MAIN" "tedge" scripts/tedge-main.template.rb)
+
+    # tedge-p11-server
+    # Add once first official release
+    # _tedge_p11_server_version=$(generate_formula "$REPO" "tedge-p11-server" scripts/tedge-p11-server.template.rb)
+    _tedge_p11_server_main_version=$(generate_formula "$REPO_MAIN" "tedge-p11-server" scripts/tedge-p11-server-main.template.rb)
 
     # return version (so it can be used by the caller)
     printf 'release=%s, main=%s\n' "$official_version" "$main_version"
@@ -157,7 +166,7 @@ case "$COMMAND" in
         update_version
         ;;
     latest_version)
-        get_latest_version "$REPO" "arm64"
+        get_latest_version "$REPO" "tedge" "arm64"
         ;;
     *)
         echo "Unknown command: $COMMAND" >&2
