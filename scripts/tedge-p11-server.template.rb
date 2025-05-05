@@ -1,4 +1,4 @@
-class TedgeP11ServerMain < Formula
+class TedgeP11Server < Formula
     desc "PKCS11 service used to enable HSM support for thin-edge.io"
     homepage "https://thin-edge.io/"
     version "$VERSION"
@@ -30,8 +30,8 @@ class TedgeP11ServerMain < Formula
     end
 
     service do
-        name macos: "tedge-p11-server-main",
-             linux: "tedge-p11-server-main"
+        name macos: "tedge-p11-server",
+             linux: "tedge-p11-server"
         run ["#{HOMEBREW_PREFIX}/bin/tedge-p11-server", "--socket-path", "#{HOMEBREW_PREFIX}/var/tedge-p11-server/tedge-p11-server.sock"]
         environment_variables TEDGE_CONFIG_DIR: etc/"tedge"
         log_path var/"log/tedge-p11-server.log"
@@ -49,7 +49,7 @@ class TedgeP11ServerMain < Formula
 
             After any changes then you will need to restart the tedge-p11-server service
 
-                brew services restart tedge-p11-server-main
+                brew services restart tedge-p11-server
         EOS
     end
 

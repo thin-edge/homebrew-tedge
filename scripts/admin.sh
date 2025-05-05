@@ -91,9 +91,9 @@ update_version() {
     # main branch release
     main_version=$(generate_formula "$REPO_MAIN" "tedge" scripts/tedge-main.template.rb)
 
-    # tedge-p11-server
-    # Add once first official release
-    # _tedge_p11_server_version=$(generate_formula "$REPO" "tedge-p11-server" scripts/tedge-p11-server.template.rb)
+    # tedge-p11-server - official release
+    _tedge_p11_server_version=$(generate_formula "$REPO" "tedge-p11-server" scripts/tedge-p11-server.template.rb)
+    # tedge-p11-server - main branch release
     _tedge_p11_server_main_version=$(generate_formula "$REPO_MAIN" "tedge-p11-server" scripts/tedge-p11-server-main.template.rb)
 
     # return version (so it can be used by the caller)
