@@ -27,8 +27,6 @@ class TedgeP11ServerMain < Formula
 
     def install
         bin.install "tedge-p11-server"
-        run_dir = (var/"tedge-p11-server")
-        run_dir.mkpath
     end
 
     service do

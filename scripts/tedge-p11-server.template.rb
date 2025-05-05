@@ -1,20 +1,19 @@
-# Code generated: DO NOT EDIT
-class TedgeP11ServerMain < Formula
+class TedgeP11Server < Formula
     desc "PKCS11 service used to enable HSM support for thin-edge.io"
     homepage "https://thin-edge.io/"
-    version "1.5.0"
+    version "$VERSION"
     license "Apache-2.0"
 
     depends_on "tedge" => :recommended
 
     on_macos do
         on_arm do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-p11-server-macos-arm64/versions/1.5.0/tedge-p11-server.tar.gz"
-            sha256 "1d4e76de64e8f76b74d78d89ad14b867ef6c97f44eccabab5c233e615a082afe"
+            url "$AARCH64_URL"
+            sha256 "$AARCH64_SHA256"
         end
         on_intel do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-p11-server-macos-amd64/versions/1.5.0/tedge-p11-server.tar.gz"
-            sha256 "f78dab5a93dafb61ff35af9d023e30d8c3b0e55e5926c575012e040329181238"
+            url "$X86_64_URL"
+            sha256 "$X86_64_SHA256"
         end
     end
 
@@ -31,8 +30,8 @@ class TedgeP11ServerMain < Formula
     end
 
     service do
-        name macos: "tedge-p11-server-main",
-             linux: "tedge-p11-server-main"
+        name macos: "tedge-p11-server",
+             linux: "tedge-p11-server"
         run ["#{HOMEBREW_PREFIX}/bin/tedge-p11-server", "--socket-path", "#{HOMEBREW_PREFIX}/var/tedge-p11-server/tedge-p11-server.sock"]
         environment_variables TEDGE_CONFIG_DIR: etc/"tedge"
         log_path var/"log/tedge-p11-server.log"
@@ -50,7 +49,7 @@ class TedgeP11ServerMain < Formula
 
             After any changes then you will need to restart the tedge-p11-server service
 
-                brew services restart tedge-p11-server-main
+                brew services restart tedge-p11-server
         EOS
     end
 
