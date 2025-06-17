@@ -2,7 +2,7 @@
 class TedgeMain < Formula
     desc "IoT Device Management"
     homepage "https://thin-edge.io/"
-    version "1.5.2-rc115+g9909b6e"
+    version "1.5.2-rc121+g237d8ec"
     license "Apache-2.0"
 
     depends_on "mosquitto" => :optional
@@ -11,12 +11,12 @@ class TedgeMain < Formula
 
     on_macos do
         on_arm do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-arm64/versions/1.5.2-rc115+g9909b6e/tedge.tar.gz"
-            sha256 "edd5f30508a7451e8ec6d6ba3fd89d08266e8865b7074c45eb32ff60b4cf2faa"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-arm64/versions/1.5.2-rc121+g237d8ec/tedge.tar.gz"
+            sha256 "4042a435af8405f9befe9b9ca56bee09a79f2d47c99c4fe7efdbe80471f328f3"
         end
         on_intel do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-amd64/versions/1.5.2-rc115+g9909b6e/tedge.tar.gz"
-            sha256 "322e29741ee73fef256acad5b3141179ce067dddbbb2cbd9af9ac3c62f2f56b5"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-macos-amd64/versions/1.5.2-rc121+g237d8ec/tedge.tar.gz"
+            sha256 "391400ffc9646d40f08507a00f37590a5ab6935ae37e9b36e3cbaaa9f1584300"
         end
     end
 
