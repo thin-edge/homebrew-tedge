@@ -159,20 +159,22 @@ class TedgeMain < Formula
         resource("sm-plugin-brew").stage { share_sm_plugins.install "brew" }
 
         # log plugins
-        share_log_plugins = (pkgshare/"log-plugins")
+        share_log_plugins = "#{HOMEBREW_PREFIX}/share/tedge/log-plugins"
         share_log_plugins.mkpath
         resource("log-plugins-file").stage { share_log_plugins.install "file" }
+        system "chmod", "-R", "555", "#{share_log_plugins}/"
 
         # diag plugins
-        share_log_plugins = (pkgshare/"diag-plugins")
-        share_log_plugins.mkpath
-        resource("diag-plugins-01_tedge.sh").stage { share_log_plugins.install "01_tedge.sh" }
-        resource("diag-plugins-02_os.sh").stage { share_log_plugins.install "02_os.sh" }
-        resource("diag-plugins-03_mqtt.sh").stage { share_log_plugins.install "03_mqtt.sh" }
-        resource("diag-plugins-04_workflow.sh").stage { share_log_plugins.install "04_workflow.sh" }
-        resource("diag-plugins-05_entities.sh").stage { share_log_plugins.install "05_entities.sh" }
-        resource("diag-plugins-06_internal.sh").stage { share_log_plugins.install "06_internal.sh" }
-        resource("diag-plugins-07_mosquitto.sh").stage { share_log_plugins.install "07_mosquitto.sh" }
+        share_diag_plugins = "#{HOMEBREW_PREFIX}/share/tedge/diag-plugins"
+        share_diag_plugins.mkpath
+        resource("diag-plugins-01_tedge.sh").stage { share_diag_plugins.install "01_tedge.sh" }
+        resource("diag-plugins-02_os.sh").stage { share_diag_plugins.install "02_os.sh" }
+        resource("diag-plugins-03_mqtt.sh").stage { share_diag_plugins.install "03_mqtt.sh" }
+        resource("diag-plugins-04_workflow.sh").stage { share_diag_plugins.install "04_workflow.sh" }
+        resource("diag-plugins-05_entities.sh").stage { share_diag_plugins.install "05_entities.sh" }
+        resource("diag-plugins-06_internal.sh").stage { share_diag_plugins.install "06_internal.sh" }
+        resource("diag-plugins-07_mosquitto.sh").stage { share_diag_plugins.install "07_mosquitto.sh" }
+        system "chmod", "-R", "555", "#{share_diag_plugins}/"
 
         # Symlink to the brew sm-plugin from the shared folder
         # This allows users to remove the symlink if they don't want the sm-plugin
