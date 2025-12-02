@@ -1,4 +1,7 @@
 name: check_updates
+permissions:
+  contents: write
+  pull-requests: write
 on:
   schedule:
     # Check daily
