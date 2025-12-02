@@ -39,6 +39,20 @@ class TedgeMain < Formula
 
     def install
         bin.install "tedge"
+
+        # Install diag-plugins to share/tedge/diag-plugins/
+        diag_plugins_dir = share/"tedge/diag-plugins"
+        diag_plugins_dir.mkpath
+        Dir["extras/diag-plugins/*"].each do |plugin|
+            diag_plugins_dir.install plugin
+        end
+
+        # Install log-plugins to share/tedge/log-plugins/
+        log_plugins_dir = share/"tedge/log-plugins"
+        log_plugins_dir.mkpath
+        Dir["extras/log-plugins/*"].each do |plugin|
+            log_plugins_dir.install plugin
+        end
     end
 
     def post_install
@@ -68,6 +82,12 @@ class TedgeMain < Formula
                 [http]
                 bind.port=8008
                 client.port=8008
+
+                [log]
+                plugin_paths = ["#{HOMEBREW_PREFIX}/share/tedge/log-plugins"]
+
+                [diag]
+                plugin_paths = ["#{HOMEBREW_PREFIX}/share/tedge/diag-plugins"]
             EOS
         end
 
@@ -75,6 +95,10 @@ class TedgeMain < Formula
         # are added to the global homebrew/bin directory
         # TODO: Check if the existing symlinks need to be removed
         system "#{HOMEBREW_PREFIX}/bin/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+
+        # set plugin locations
+        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "add", "log.plugin_paths", "#{HOMEBREW_PREFIX}/share/tedge/log-plugins"
+        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "add", "diag.plugin_paths", "#{HOMEBREW_PREFIX}/share/tedge/diag-plugins"
 
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
