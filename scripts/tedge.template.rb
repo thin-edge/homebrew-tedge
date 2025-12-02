@@ -29,6 +29,42 @@ class Tedge < Formula
         sha256 "78d48cacf66b98a8335c5b4834a3e7507bef4b16d230cb728a839dd5bcca6b8a"
     end
 
+    # log plugins
+    resource "log-plugins-file" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/log-plugins/file"
+        sha256 "e70106ce3b197a18d32db83493fe51fee05ec78da1374fc4c37aceaa65af65b3"
+    end
+
+    # diag plugins
+    resource "diag-plugins-01_tedge.sh" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/01_tedge.sh"
+        sha256 "e38abbc7b616a1c2c75a0fe9a9834e983cb4cc3d4700ecdf8387e6492e7d03a2"
+    end
+    resource "diag-plugins-02_os.sh" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/02_os.sh"
+        sha256 "e18d510f69119208fbfba86a95386c4127deab4b0e6d61ce280cba2e2f4849aa"
+    end
+    resource "diag-plugins-03_mqtt.sh" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/03_mqtt.sh"
+        sha256 "e2983078fce45ba07572cb33ead0c3f3398d2507690d825563409bbc86401939"
+    end
+    resource "diag-plugins-04_workflow.sh" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/04_workflow.sh"
+        sha256 "d2db9759ec597fccc31dbcf4a431b8770f640543bfd409dbfb93781ee2e0d9d6"
+    end
+    resource "diag-plugins-05_entities.sh" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/05_entities.sh"
+        sha256 "286b4dabeaae417dc0cf0dbe9bacb589df100087fd3995304a57e1db04b89496"
+    end
+    resource "diag-plugins-06_internal.sh" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/06_internal.sh"
+        sha256 "772646a6ec6efa89a1ffdbd22c841bf4cf1862d4dd70f4399ce67d50bad03e21"
+    end
+    resource "diag-plugins-07_mosquitto.sh" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/07_mosquitto.sh"
+        sha256 "ab17534fa6c12ad05d564865b1d6b1a8d642113cf914033cb361f2fd49a2bff8"
+    end
+
     def user
         Utils.safe_popen_read("id", "-un").chomp
     end
@@ -39,20 +75,6 @@ class Tedge < Formula
 
     def install
         bin.install "tedge"
-
-        # Install diag-plugins to share/tedge/diag-plugins/
-        diag_plugins_dir = share/"tedge/diag-plugins"
-        diag_plugins_dir.mkpath
-        Dir["extras/diag-plugins/*"].each do |plugin|
-            diag_plugins_dir.install plugin
-        end
-
-        # Install log-plugins to share/tedge/log-plugins/
-        log_plugins_dir = share/"tedge/log-plugins"
-        log_plugins_dir.mkpath
-        Dir["extras/log-plugins/*"].each do |plugin|
-            log_plugins_dir.install plugin
-        end
     end
 
     def post_install
@@ -134,6 +156,22 @@ class Tedge < Formula
         share_sm_plugins = (pkgshare/"sm-plugins")
         share_sm_plugins.mkpath
         resource("sm-plugin-brew").stage { share_sm_plugins.install "brew" }
+
+        # log plugins
+        share_log_plugins = (pkgshare/"log-plugins")
+        share_log_plugins.mkpath
+        resource("log-plugins-file").stage { share_log_plugins.install "file" }
+
+        # diag plugins
+        share_log_plugins = (pkgshare/"diag-plugins")
+        share_log_plugins.mkpath
+        resource("diag-plugins-01_tedge.sh").stage { share_log_plugins.install "01_tedge.sh" }
+        resource("diag-plugins-02_os.sh").stage { share_log_plugins.install "02_os.sh" }
+        resource("diag-plugins-03_mqtt.sh").stage { share_log_plugins.install "03_mqtt.sh" }
+        resource("diag-plugins-04_workflow.sh").stage { share_log_plugins.install "04_workflow.sh" }
+        resource("diag-plugins-05_entities.sh").stage { share_log_plugins.install "05_entities.sh" }
+        resource("diag-plugins-06_internal.sh").stage { share_log_plugins.install "06_internal.sh" }
+        resource("diag-plugins-07_mosquitto.sh").stage { share_log_plugins.install "07_mosquitto.sh" }
 
         # Symlink to the brew sm-plugin from the shared folder
         # This allows users to remove the symlink if they don't want the sm-plugin
