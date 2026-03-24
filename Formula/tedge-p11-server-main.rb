@@ -2,19 +2,19 @@
 class TedgeP11ServerMain < Formula
     desc "PKCS11 service used to enable HSM support for thin-edge.io"
     homepage "https://thin-edge.io/"
-    version "1.7.2-rc442+g323eff4"
+    version "1.7.2-rc448+gedc2cfb"
     license "Apache-2.0"
 
     depends_on "tedge" => :recommended
 
     on_macos do
         on_arm do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-p11-server-macos-arm64/versions/1.7.2-rc442+g323eff4/tedge-p11-server.tar.gz"
-            sha256 "4a3c5d13b0982e11a64f69812a5311c0f7ff5e906f91f12dda6b14d99c02ef49"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-p11-server-macos-arm64/versions/1.7.2-rc448+gedc2cfb/tedge-p11-server.tar.gz"
+            sha256 "b2e41fb9470c5cde2610b00eb9c0d47989d96a632677388fe5ebc6707eb6042e"
         end
         on_intel do
-            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-p11-server-macos-amd64/versions/1.7.2-rc442+g323eff4/tedge-p11-server.tar.gz"
-            sha256 "57b60b8338e62c7995558e443ecd6904b6c28ebdfd4b09958e9fa07dca9ab9e8"
+            url "https://dl.cloudsmith.io/public/thinedge/tedge-main/raw/names/tedge-p11-server-macos-amd64/versions/1.7.2-rc448+gedc2cfb/tedge-p11-server.tar.gz"
+            sha256 "f5affb112b7ce8cba77ae775c969f620719ebcdeab4dacfeeb7eeb525fcea25e"
         end
     end
 
