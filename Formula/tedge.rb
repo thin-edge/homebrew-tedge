@@ -152,7 +152,7 @@ class Tedge < Formula
         share_log_plugins = (pkgshare/"log-plugins")
         share_log_plugins.mkpath
         resource("log-plugins-file").stage { share_log_plugins.install "file" }
-        system "chmod", "-R", "555", share_log_plugins
+        system "chmod", "-R", "755", share_log_plugins
         ohai "Installed log plugins to #{share_log_plugins}"
         system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", share_log_plugins
 
@@ -166,7 +166,7 @@ class Tedge < Formula
         resource("diag-plugins-05_entities.sh").stage { share_diag_plugins.install "05_entities.sh" }
         resource("diag-plugins-06_internal.sh").stage { share_diag_plugins.install "06_internal.sh" }
         resource("diag-plugins-07_mosquitto.sh").stage { share_diag_plugins.install "07_mosquitto.sh" }
-        system "chmod", "-R", "555", share_diag_plugins
+        system "chmod", "-R", "755", share_diag_plugins
         system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", share_diag_plugins
         ohai "Installed diag plugins to #{share_diag_plugins}"
 
@@ -175,7 +175,7 @@ class Tedge < Formula
         # rather than deleting the whole file
         sm_plugins_dir = (etc/"tedge/sm-plugins")
         sm_plugins_dir.install_symlink share_sm_plugins/"brew"
-        system "chmod", "555", "#{share_sm_plugins}/brew"
+        system "chmod", "755", "#{share_sm_plugins}/brew"
         sm_plugins_dir = (etc/"tedge/sm-plugins")
         sm_plugins_dir.install_symlink share_sm_plugins/"brew"
 
@@ -183,7 +183,7 @@ class Tedge < Formula
         shared_scripts = (pkgshare/"scripts")
         shared_scripts.mkpath
         resource("brewctl").stage { shared_scripts.install "brewctl" }
-        system "chmod", "555", "#{shared_scripts}/brewctl"
+        system "chmod", "755", "#{shared_scripts}/brewctl"
         config_dir.install_symlink shared_scripts/"brewctl"
 
         # system.toml settings

@@ -75,14 +75,28 @@ brew unlink tedge-main; brew link tedge
 
 ## Testing
 
-You can manually test the homebrew formula by checking out the project, and then running:
+Homebrew requires formulae to be inside a registered tap directory. The simplest way to test local changes is to replace the installed tap with your local checkout:
 
 ```sh
-HOMEBREW_NO_INSTALL_FROM_API=1 brew install --verbose --build-from-source Formula/tedge.rb
+brew untap --force thin-edge/tedge
+brew tap thin-edge/tedge $(pwd)
 ```
 
-Or if you have already installed the package, then you need to run `reinstall`:
+Then install or reinstall normally:
 
 ```sh
-HOMEBREW_NO_INSTALL_FROM_API=1 brew reinstall --verbose --build-from-source Formula/tedge.rb
+# install
+HOMEBREW_NO_INSTALL_FROM_API=1 brew install --verbose --build-from-source thin-edge/tedge/tedge
+
+# reinstall (if already installed)
+HOMEBREW_NO_INSTALL_FROM_API=1 brew reinstall --verbose --build-from-source thin-edge/tedge/tedge
+```
+
+Replace `tedge` with the formula name you want to test, e.g. `thin-edge/tedge/tedge-main`.
+
+When you're done testing, restore the tap to the remote:
+
+```sh
+brew untap --force thin-edge/tedge
+brew tap thin-edge/tedge
 ```

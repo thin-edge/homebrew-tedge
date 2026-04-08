@@ -35,6 +35,12 @@ class TedgeMain < Formula
         sha256 "e70106ce3b197a18d32db83493fe51fee05ec78da1374fc4c37aceaa65af65b3"
     end
 
+    # config plugins
+    resource "config-plugins-file" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/config-plugins/file"
+        sha256 "7bcc28f271e2d0cbfb51a05665e3cc999c1a7846dfe8daed322995c86275a15a"
+    end
+
     # diag plugins
     resource "diag-plugins-01_tedge.sh" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/01_tedge.sh"
@@ -62,7 +68,7 @@ class TedgeMain < Formula
     end
     resource "diag-plugins-07_mosquitto.sh" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/07_mosquitto.sh"
-        sha256 "ab17534fa6c12ad05d564865b1d6b1a8d642113cf914033cb361f2fd49a2bff8"
+        sha256 "ceaedca49540f156fc066864b30c7dedb7fd998fd8a73f4a6af75b3b4aa18abe"
     end
 
     def user
@@ -75,6 +81,9 @@ class TedgeMain < Formula
 
     def install
         bin.install "tedge"
+        bin.install_symlink bin/"tedge" => "tedge-flows-plugin"
+        bin.install_symlink bin/"tedge" => "tedge-file-log-plugin"
+        bin.install_symlink bin/"tedge" => "tedge-file-config-plugin"
     end
 
     def post_install
@@ -107,10 +116,34 @@ class TedgeMain < Formula
             EOS
         end
 
+        # system.toml settings
+        system_file = config_dir/"system.toml"
+        if !system_file.exist?
+            system_file.write <<~EOS
+                user = "#{user}"
+                group = "#{group}"
+
+                [system]
+                reboot = ["#{config_dir}/brewctl", "reboot"]
+                
+                [init]
+                name = "homebrew"
+                is_available = ["#{config_dir}/brewctl", "services", "is_available"]
+                restart = ["#{config_dir}/brewctl", "services", "restart", "{}"]
+                stop =  ["#{config_dir}/brewctl", "services", "stop", "{}"]
+                start =  ["#{config_dir}/brewctl", "services", "start", "{}"]
+                enable =  ["#{config_dir}/brewctl", "services", "enable", "{}"]
+                disable =  ["#{config_dir}/brewctl", "services", "disable", "{}"]
+                is_active = ["#{config_dir}/brewctl", "services", "is-active", "{}"]
+            EOS
+        end
+
         # init should be run where the tedge binary is located so that the symlinks
         # are added to the global homebrew/bin directory
         # TODO: Check if the existing symlinks need to be removed
         system "#{HOMEBREW_PREFIX}/bin/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+        system "#{HOMEBREW_PREFIX}/bin/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
+        system "#{HOMEBREW_PREFIX}/bin/tedge", "--config-dir", "#{config_dir}", "refresh-bridges"
 
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
@@ -151,9 +184,17 @@ class TedgeMain < Formula
         share_log_plugins = (pkgshare/"log-plugins")
         share_log_plugins.mkpath
         resource("log-plugins-file").stage { share_log_plugins.install "file" }
-        system "chmod", "-R", "555", share_log_plugins
+        system "chmod", "-R", "755", share_log_plugins
         ohai "Installed log plugins to #{share_log_plugins}"
         system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", share_log_plugins
+
+        # config plugins
+        share_config_plugins = (pkgshare/"config-plugins")
+        share_config_plugins.mkpath
+        resource("config-plugins-file").stage { share_config_plugins.install "file" }
+        system "chmod", "-R", "755", share_config_plugins
+        ohai "Installed log plugins to #{share_config_plugins}"
+        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "configuration.plugin_paths", share_config_plugins
 
         # diag plugins
         share_diag_plugins = (pkgshare/"diag-plugins")
@@ -165,7 +206,7 @@ class TedgeMain < Formula
         resource("diag-plugins-05_entities.sh").stage { share_diag_plugins.install "05_entities.sh" }
         resource("diag-plugins-06_internal.sh").stage { share_diag_plugins.install "06_internal.sh" }
         resource("diag-plugins-07_mosquitto.sh").stage { share_diag_plugins.install "07_mosquitto.sh" }
-        system "chmod", "-R", "555", share_diag_plugins
+        system "chmod", "-R", "755", share_diag_plugins
         system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", share_diag_plugins
         ohai "Installed diag plugins to #{share_diag_plugins}"
 
@@ -174,36 +215,18 @@ class TedgeMain < Formula
         # rather than deleting the whole file
         sm_plugins_dir = (etc/"tedge/sm-plugins")
         sm_plugins_dir.install_symlink share_sm_plugins/"brew"
-        system "chmod", "555", "#{share_sm_plugins}/brew"
+        system "chmod", "755", "#{share_sm_plugins}/brew"
         sm_plugins_dir = (etc/"tedge/sm-plugins")
         sm_plugins_dir.install_symlink share_sm_plugins/"brew"
+
+        sm_plugins_dir.install_symlink bin/"tedge-flows-plugin" => "flow"
 
         # Install scripts
         shared_scripts = (pkgshare/"scripts")
         shared_scripts.mkpath
         resource("brewctl").stage { shared_scripts.install "brewctl" }
-        system "chmod", "555", "#{shared_scripts}/brewctl"
+        system "chmod", "755", "#{shared_scripts}/brewctl"
         config_dir.install_symlink shared_scripts/"brewctl"
-
-        # system.toml settings
-        system_file = config_dir/"system.toml"
-        if !system_file.exist?
-            system_file.write <<~EOS
-                [system]
-                reboot = ["#{config_dir}/brewctl", "reboot"]
-                
-                [init]
-                name = "homebrew"
-                is_available = ["#{config_dir}/brewctl", "services", "is_available"]
-                restart = ["#{config_dir}/brewctl", "services", "restart", "{}"]
-                stop =  ["#{config_dir}/brewctl", "services", "stop", "{}"]
-                start =  ["#{config_dir}/brewctl", "services", "start", "{}"]
-                enable =  ["#{config_dir}/brewctl", "services", "enable", "{}"]
-                disable =  ["#{config_dir}/brewctl", "services", "disable", "{}"]
-                is_active = ["#{config_dir}/brewctl", "services", "is-active", "{}"]
-            EOS
-        end
-
     end
 
     def caveats
