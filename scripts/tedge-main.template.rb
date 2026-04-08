@@ -84,6 +84,7 @@ class TedgeMain < Formula
         bin.install_symlink bin/"tedge" => "tedge-flows-plugin"
         bin.install_symlink bin/"tedge" => "tedge-file-log-plugin"
         bin.install_symlink bin/"tedge" => "tedge-file-config-plugin"
+        resource("brewctl").stage { bin.install "brewctl" }
     end
 
     def post_install
@@ -117,24 +118,28 @@ class TedgeMain < Formula
         end
 
         # system.toml settings
+        # Always overwrite unless the user has opted out by adding "# managed-by: user" to the file.
         system_file = config_dir/"system.toml"
-        if !system_file.exist?
+        if !system_file.exist? || !system_file.read.include?("# managed-by: user")
             system_file.write <<~EOS
+                # managed-by: homebrew-tedge
+                # To prevent this file from being overwritten on upgrade, change the marker above to:
+                #   # managed-by: user
                 user = "#{user}"
                 group = "#{group}"
 
                 [system]
-                reboot = ["#{config_dir}/brewctl", "reboot"]
+                reboot = ["brewctl", "reboot"]
                 
                 [init]
                 name = "homebrew"
-                is_available = ["#{config_dir}/brewctl", "services", "is_available"]
-                restart = ["#{config_dir}/brewctl", "services", "restart", "{}"]
-                stop =  ["#{config_dir}/brewctl", "services", "stop", "{}"]
-                start =  ["#{config_dir}/brewctl", "services", "start", "{}"]
-                enable =  ["#{config_dir}/brewctl", "services", "enable", "{}"]
-                disable =  ["#{config_dir}/brewctl", "services", "disable", "{}"]
-                is_active = ["#{config_dir}/brewctl", "services", "is-active", "{}"]
+                is_available = ["brewctl", "services", "is_available"]
+                restart = ["brewctl", "services", "restart", "{}"]
+                stop =  ["brewctl", "services", "stop", "{}"]
+                start =  ["brewctl", "services", "start", "{}"]
+                enable =  ["brewctl", "services", "enable", "{}"]
+                disable =  ["brewctl", "services", "disable", "{}"]
+                is_active = ["brewctl", "services", "is-active", "{}"]
             EOS
         end
 
