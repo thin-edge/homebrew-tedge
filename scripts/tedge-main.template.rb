@@ -32,13 +32,13 @@ class TedgeMain < Formula
     # log plugins
     resource "log-plugins-file" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/log-plugins/file"
-        sha256 "e70106ce3b197a18d32db83493fe51fee05ec78da1374fc4c37aceaa65af65b3"
+        sha256 "b0c30901962bf5614e895576432db4987c444e28c5d437b55e220d7c2978e474"
     end
 
     # config plugins
     resource "config-plugins-file" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/config-plugins/file"
-        sha256 "7bcc28f271e2d0cbfb51a05665e3cc999c1a7846dfe8daed322995c86275a15a"
+        sha256 "727053aacfafab21745e942af849412f1f5f217e60a45bdfd6c19624a2e6f39e"
     end
 
     # diag plugins

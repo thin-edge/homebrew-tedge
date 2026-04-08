@@ -1,3 +1,11 @@
 #!/bin/sh
-set -e
-exec tedge run tedge-file-config-plugin "$@"
+# Resolve tedge without relying on PATH (services may run with a stripped environment)
+for candidate in \
+    "${TEDGE:-}" \
+    "/opt/homebrew/bin/tedge" \
+    "/usr/local/bin/tedge" \
+    "$(command -v tedge 2>/dev/null)"
+do
+    [ -x "$candidate" ] && TEDGE="$candidate" && break
+done
+exec "$TEDGE" run tedge-file-config-plugin "$@"
