@@ -143,7 +143,9 @@ class TedgeMain < Formula
         # TODO: Check if the existing symlinks need to be removed
         system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
         system "#{bin}/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
-        system "#{bin}/tedge", "--config-dir", "#{config_dir}", "refresh-bridges"
+        with_env("PATH" => "#{bin}:#{ENV["PATH"]}") do
+            system "#{bin}/tedge", "--config-dir", "#{config_dir}", "refresh-bridges"
+        end
 
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
