@@ -254,9 +254,10 @@ class TedgeMain < Formula
 
             Onboarding instructions:
 
-                tedge cert create --device-id "tedge_on_macos"
+                DEVICE_ID="tedge_on_macos"
                 tedge config set c8y.url "$C8Y_DOMAIN"
-                tedge cert upload c8y --user "$C8Y_USER"
+                ONE_TIME_PASSWORD=$(c8y deviceregistration register-ca --id "$DEVICE_ID" --select password -o csv)
+                tedge cert download c8y --device-id "$DEVICE_ID" --one-time-password "$ONE_TIME_PASSWORD" --retry-every 5s
                 tedge connect c8y
 
 
