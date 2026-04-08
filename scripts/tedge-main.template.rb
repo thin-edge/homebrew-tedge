@@ -121,7 +121,7 @@ class TedgeMain < Formula
         # Always overwrite unless the user has opted out by adding "# managed-by: user" to the file.
         system_file = config_dir/"system.toml"
         if !system_file.exist? || !system_file.read.match?(/^# managed-by: user/)
-            system_file.write <<~EOS
+            system_file.atomic_write <<~EOS
                 # managed-by: homebrew-tedge
                 # To prevent this file from being overwritten on upgrade, change the marker above to:
                 #   # managed-by: user
