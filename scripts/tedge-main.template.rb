@@ -141,9 +141,9 @@ class TedgeMain < Formula
         # init should be run where the tedge binary is located so that the symlinks
         # are added to the global homebrew/bin directory
         # TODO: Check if the existing symlinks need to be removed
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "--config-dir", "#{config_dir}", "refresh-bridges"
+        system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+        system "#{bin}/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
+        system "#{bin}/tedge", "--config-dir", "#{config_dir}", "refresh-bridges"
 
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
@@ -186,7 +186,7 @@ class TedgeMain < Formula
         resource("log-plugins-file").stage { share_log_plugins.install "file" }
         system "chmod", "-R", "755", share_log_plugins
         ohai "Installed log plugins to #{share_log_plugins}"
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", share_log_plugins
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", share_log_plugins
 
         # config plugins
         share_config_plugins = (pkgshare/"config-plugins")
@@ -194,7 +194,7 @@ class TedgeMain < Formula
         resource("config-plugins-file").stage { share_config_plugins.install "file" }
         system "chmod", "-R", "755", share_config_plugins
         ohai "Installed log plugins to #{share_config_plugins}"
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "configuration.plugin_paths", share_config_plugins
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "configuration.plugin_paths", share_config_plugins
 
         # diag plugins
         share_diag_plugins = (pkgshare/"diag-plugins")
@@ -207,7 +207,7 @@ class TedgeMain < Formula
         resource("diag-plugins-06_internal.sh").stage { share_diag_plugins.install "06_internal.sh" }
         resource("diag-plugins-07_mosquitto.sh").stage { share_diag_plugins.install "07_mosquitto.sh" }
         system "chmod", "-R", "755", share_diag_plugins
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", share_diag_plugins
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", share_diag_plugins
         ohai "Installed diag plugins to #{share_diag_plugins}"
 
         # Symlink to the brew sm-plugin from the shared folder
