@@ -68,7 +68,7 @@ class TedgeMain < Formula
     end
     resource "diag-plugins-07_mosquitto.sh" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/07_mosquitto.sh"
-        sha256 "ab17534fa6c12ad05d564865b1d6b1a8d642113cf914033cb361f2fd49a2bff8"
+        sha256 "ceaedca49540f156fc066864b30c7dedb7fd998fd8a73f4a6af75b3b4aa18abe"
     end
 
     def user
@@ -142,6 +142,8 @@ class TedgeMain < Formula
         # are added to the global homebrew/bin directory
         # TODO: Check if the existing symlinks need to be removed
         system "#{HOMEBREW_PREFIX}/bin/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+        system "#{HOMEBREW_PREFIX}/bin/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
+        system "#{HOMEBREW_PREFIX}/bin/tedge", "--config-dir", "#{config_dir}", "refresh-bridges"
 
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
