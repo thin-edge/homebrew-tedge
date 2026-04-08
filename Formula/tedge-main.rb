@@ -150,7 +150,9 @@ class TedgeMain < Formula
         system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
         system "#{bin}/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
         with_env("PATH" => "#{bin}:#{ENV["PATH"]}") do
-            system "#{bin}/tedge", "--config-dir", "#{config_dir}", "refresh-bridges"
+            unless quiet_system("#{bin}/tedge", "--config-dir", "#{config_dir}", "refresh-bridges")
+                opoo "refresh-bridges failed (mosquitto may not be running yet). Run 'tedge reconnect c8y' once services are started."
+            end
         end
 
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
