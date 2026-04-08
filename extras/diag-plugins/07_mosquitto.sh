@@ -5,6 +5,17 @@ OUTPUT_DIR=""
 COMMAND=""
 TEDGE_CONFIG_DIR=${TEDGE_CONFIG_DIR:-/etc/tedge}
 
+# Default paths (Linux)
+MOSQUITTO_CONF_DIR="/etc/mosquitto"
+MOSQUITTO_LOG_DIR="/var/log/mosquitto"
+
+# On macOS with Homebrew, resolve paths via brew prefix
+if [ "$(uname)" = "Darwin" ] && command -V brew >/dev/null 2>&1; then
+    BREW_PREFIX="$(brew --prefix)"
+    MOSQUITTO_CONF_DIR="$BREW_PREFIX/etc/mosquitto"
+    MOSQUITTO_LOG_DIR="$BREW_PREFIX/var/log/mosquitto"
+fi
+
 # Parse arguments
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -33,41 +44,42 @@ mosquitto_journal() {
 }
 
 mosquitto_log() {
-    if [ -f /var/log/mosquitto/mosquitto.log ]; then
+    if [ -f "$MOSQUITTO_LOG_DIR/mosquitto.log" ]; then
         # avoid copying the full file as it could be very large if logrotate is not installed and configured
         # but still log the details as it could be helpful to diagnose
         echo "mosquitto log file details:" >&2
-        ls -l /var/log/mosquitto/mosquitto.log >&2 ||:
-        tail -n 1000 /var/log/mosquitto/mosquitto.log > "$OUTPUT_DIR"/mosquitto.log ||:
+        ls -l "$MOSQUITTO_LOG_DIR/mosquitto.log" >&2 ||:
+        tail -n 1000 "$MOSQUITTO_LOG_DIR/mosquitto.log" > "$OUTPUT_DIR"/mosquitto.log ||:
     else
         echo "mosquitto.log not found" >&2
     fi
 }
 
 mosquitto_config() {
-    if [ -d /etc/mosquitto ]; then
+    if [ -d "$MOSQUITTO_CONF_DIR" ]; then
         if command -V tree >/dev/null >&2; then
-            tree /etc/mosquitto > "$OUTPUT_DIR/etc_mosquitto.tree.txt" ||:
+            tree "$MOSQUITTO_CONF_DIR" > "$OUTPUT_DIR/etc_mosquitto.tree.txt" ||:
         else
-            ls -l /etc/mosquitto/* > "$OUTPUT_DIR/etc_mosquitto.tree.txt" ||:
+            ls -l "$MOSQUITTO_CONF_DIR"/* > "$OUTPUT_DIR/etc_mosquitto.tree.txt" ||:
         fi
     else
-        echo "/etc/mosquitto directory does not exist" >&2
+        echo "$MOSQUITTO_CONF_DIR directory does not exist" >&2
     fi
 
     mkdir -p "$OUTPUT_DIR/mosquitto"
-    if [ -f /etc/mosquitto/mosquitto.conf ]; then
-        cp -aR /etc/mosquitto/mosquitto.conf "$OUTPUT_DIR/mosquitto" ||:
+    if [ -f "$MOSQUITTO_CONF_DIR/mosquitto.conf" ]; then
+        cp -aR "$MOSQUITTO_CONF_DIR/mosquitto.conf" "$OUTPUT_DIR/mosquitto" ||:
     fi
-    if [ -d /etc/mosquitto/conf.d ]; then
-        cp -aR /etc/mosquitto/conf.d "$OUTPUT_DIR/mosquitto/" ||:
+    if [ -d "$MOSQUITTO_CONF_DIR/conf.d" ]; then
+        cp -aR "$MOSQUITTO_CONF_DIR/conf.d" "$OUTPUT_DIR/mosquitto/" ||:
     fi
 
     mkdir -p "$OUTPUT_DIR/tedge"
     cp -aR "$TEDGE_CONFIG_DIR/mosquitto-conf" "$OUTPUT_DIR/tedge/" ||:
 
-    # sanitize password fields
-    find "$OUTPUT_DIR" -name "*.conf" -exec sed -i 's/password\s*.*/password <redacted>/g' {} \; ||:
+    # sanitize password fields (sed -i.bak works on both Linux and macOS BSD sed)
+    find "$OUTPUT_DIR" -name "*.conf" -exec sed -i.bak 's/password\s*.*/password <redacted>/g' {} \; ||:
+    find "$OUTPUT_DIR" -name "*.conf.bak" -delete ||:
 }
 
 collect() {
