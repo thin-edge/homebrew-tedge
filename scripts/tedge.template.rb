@@ -32,7 +32,13 @@ class Tedge < Formula
     # log plugins
     resource "log-plugins-file" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/log-plugins/file"
-        sha256 "e70106ce3b197a18d32db83493fe51fee05ec78da1374fc4c37aceaa65af65b3"
+        sha256 "b0c30901962bf5614e895576432db4987c444e28c5d437b55e220d7c2978e474"
+    end
+
+    # config plugins
+    resource "config-plugins-file" do
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/config-plugins/file"
+        sha256 "727053aacfafab21745e942af849412f1f5f217e60a45bdfd6c19624a2e6f39e"
     end
 
     # diag plugins
@@ -62,7 +68,7 @@ class Tedge < Formula
     end
     resource "diag-plugins-07_mosquitto.sh" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/07_mosquitto.sh"
-        sha256 "ab17534fa6c12ad05d564865b1d6b1a8d642113cf914033cb361f2fd49a2bff8"
+        sha256 "ceaedca49540f156fc066864b30c7dedb7fd998fd8a73f4a6af75b3b4aa18abe"
     end
 
     def user
@@ -75,6 +81,10 @@ class Tedge < Formula
 
     def install
         bin.install "tedge"
+        bin.install_symlink bin/"tedge" => "tedge-flows-plugin"
+        bin.install_symlink bin/"tedge" => "tedge-file-log-plugin"
+        bin.install_symlink bin/"tedge" => "tedge-file-config-plugin"
+        resource("brewctl").stage { bin.install "brewctl" }
     end
 
     def post_install
@@ -107,10 +117,42 @@ class Tedge < Formula
             EOS
         end
 
+        # system.toml settings
+        # Always overwrite unless the user has opted out by adding "# managed-by: user" to the file.
+        system_file = config_dir/"system.toml"
+        if !system_file.exist? || !system_file.read.match?(/^# managed-by: user/)
+            system_file.atomic_write <<~EOS
+                # managed-by: homebrew-tedge
+                # To prevent this file from being overwritten on upgrade, change the marker above to:
+                #   # managed-by: user
+                user = "#{user}"
+                group = "#{group}"
+
+                [system]
+                reboot = ["brewctl", "reboot"]
+                
+                [init]
+                name = "homebrew"
+                is_available = ["brewctl", "services", "is_available"]
+                restart = ["brewctl", "services", "restart", "{}"]
+                stop =  ["brewctl", "services", "stop", "{}"]
+                start =  ["brewctl", "services", "start", "{}"]
+                enable =  ["brewctl", "services", "enable", "{}"]
+                disable =  ["brewctl", "services", "disable", "{}"]
+                is_active = ["brewctl", "services", "is-active", "{}"]
+            EOS
+        end
+
         # init should be run where the tedge binary is located so that the symlinks
         # are added to the global homebrew/bin directory
         # TODO: Check if the existing symlinks need to be removed
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+        system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
+        system "#{bin}/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
+        with_env("PATH" => "#{bin}:#{ENV["PATH"]}") do
+            unless quiet_system("#{bin}/tedge", "--config-dir", "#{config_dir}", "refresh-bridges")
+                opoo "refresh-bridges failed (mosquitto may not be running yet). Run 'tedge reconnect c8y' once services are started."
+            end
+        end
 
         # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
         # system "#{bin}/c8y-remote-access-plugin", "--config-dir", "#{config_dir}", "--init"
@@ -153,7 +195,15 @@ class Tedge < Formula
         resource("log-plugins-file").stage { share_log_plugins.install "file" }
         system "chmod", "-R", "755", share_log_plugins
         ohai "Installed log plugins to #{share_log_plugins}"
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", share_log_plugins
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", share_log_plugins
+
+        # config plugins
+        share_config_plugins = (pkgshare/"config-plugins")
+        share_config_plugins.mkpath
+        resource("config-plugins-file").stage { share_config_plugins.install "file" }
+        system "chmod", "-R", "755", share_config_plugins
+        ohai "Installed log plugins to #{share_config_plugins}"
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "configuration.plugin_paths", share_config_plugins
 
         # diag plugins
         share_diag_plugins = (pkgshare/"diag-plugins")
@@ -166,7 +216,7 @@ class Tedge < Formula
         resource("diag-plugins-06_internal.sh").stage { share_diag_plugins.install "06_internal.sh" }
         resource("diag-plugins-07_mosquitto.sh").stage { share_diag_plugins.install "07_mosquitto.sh" }
         system "chmod", "-R", "755", share_diag_plugins
-        system "#{HOMEBREW_PREFIX}/bin/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", share_diag_plugins
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", share_diag_plugins
         ohai "Installed diag plugins to #{share_diag_plugins}"
 
         # Symlink to the brew sm-plugin from the shared folder
@@ -178,32 +228,14 @@ class Tedge < Formula
         sm_plugins_dir = (etc/"tedge/sm-plugins")
         sm_plugins_dir.install_symlink share_sm_plugins/"brew"
 
+        sm_plugins_dir.install_symlink bin/"tedge-flows-plugin" => "flow"
+
         # Install scripts
         shared_scripts = (pkgshare/"scripts")
         shared_scripts.mkpath
         resource("brewctl").stage { shared_scripts.install "brewctl" }
         system "chmod", "755", "#{shared_scripts}/brewctl"
         config_dir.install_symlink shared_scripts/"brewctl"
-
-        # system.toml settings
-        system_file = config_dir/"system.toml"
-        if !system_file.exist?
-            system_file.write <<~EOS
-                [system]
-                reboot = ["#{config_dir}/brewctl", "reboot"]
-                
-                [init]
-                name = "homebrew"
-                is_available = ["#{config_dir}/brewctl", "services", "is_available"]
-                restart = ["#{config_dir}/brewctl", "services", "restart", "{}"]
-                stop =  ["#{config_dir}/brewctl", "services", "stop", "{}"]
-                start =  ["#{config_dir}/brewctl", "services", "start", "{}"]
-                enable =  ["#{config_dir}/brewctl", "services", "enable", "{}"]
-                disable =  ["#{config_dir}/brewctl", "services", "disable", "{}"]
-                is_active = ["#{config_dir}/brewctl", "services", "is-active", "{}"]
-            EOS
-        end
-
     end
 
     def caveats
@@ -217,13 +249,16 @@ class Tedge < Formula
 
             Configure your zsh profile then reload it
                 sh -c 'echo export TEDGE_CONFIG_DIR=\"#{etc}/tedge\"' >> "$HOME/.zshrc"
+                sh -c 'echo "source <(tedge completions zsh)"' >> "$HOME/.zshrc"
+                
                 . "$HOME/.zshrc"
 
             Onboarding instructions:
 
-                tedge cert create --device-id "tedge_on_macos"
+                DEVICE_ID="tedge_on_macos"
                 tedge config set c8y.url "$C8Y_DOMAIN"
-                tedge cert upload c8y --user "$C8Y_USER"
+                ONE_TIME_PASSWORD=$(c8y deviceregistration register-ca --id "$DEVICE_ID" --select password -o csv)
+                tedge cert download c8y --device-id "$DEVICE_ID" --one-time-password "$ONE_TIME_PASSWORD" --retry-every 5s
                 tedge connect c8y
 
 
@@ -238,6 +273,13 @@ class Tedge < Formula
                 brew services restart tedge-agent
                 brew services restart tedge-mapper-cumulocity
 
+            Activate tedge-main (and disable tedge):
+
+                brew unlink tedge; brew link tedge-main
+
+            Deactivate tedge-main (and enable tedge):
+
+                brew unlink tedge-main; brew link tedge
         EOS
     end
 
