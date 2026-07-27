@@ -12,6 +12,7 @@ Install thin-edge.io using the following commands:
 
 ```sh
 brew tap thin-edge/tedge
+brew trust thin-edge/tedge
 brew install tedge
 ```
 
@@ -58,6 +59,7 @@ Install the latest pre-release version using:
 
 ```sh
 brew tap thin-edge/tedge
+brew trust thin-edge/tedge
 brew install tedge-main
 ```
 
