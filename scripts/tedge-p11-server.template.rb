@@ -33,7 +33,7 @@ class TedgeP11Server < Formula
         name macos: "tedge-p11-server",
              linux: "tedge-p11-server"
         run ["#{HOMEBREW_PREFIX}/bin/tedge-p11-server", "--socket-path", "#{HOMEBREW_PREFIX}/var/tedge-p11-server/tedge-p11-server.sock"]
-        environment_variables TEDGE_CONFIG_DIR: etc/"tedge"
+        environment_variables PATH: std_service_path_env, TEDGE_CONFIG_DIR: etc/"tedge"
         log_path var/"log/tedge-p11-server.log"
         keep_alive true
         restart_delay 5
