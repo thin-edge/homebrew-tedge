@@ -295,20 +295,29 @@ class Tedge < Formula
         EOS
     end
 
+    def tedge_config_dir_in_shell_profile?
+        zdotdir = ENV.fetch("ZDOTDIR", Dir.home)
+        %w[.zshenv .zprofile .zshrc].any? do |name|
+            profile = File.join(zdotdir, name)
+            File.file?(profile) && File.read(profile).include?("TEDGE_CONFIG_DIR")
+        rescue SystemCallError
+            false
+        end
+    end
+
     def caveats
-        <<~EOS
-            thin-edge.io has been installed with a default configuration file.
-            You can make changes to the configuration by editing:
-                #{etc}/tedge/tedge.toml
+        shell_setup = ""
+        unless tedge_config_dir_in_shell_profile?
+            shell_setup = <<~EOS
+                Configure your zsh profile then reload it:
 
-            The thin-edge.io mosquitto configuration is included via the following line in #{etc}/mosquitto/mosquitto.conf:
-                include_dir #{etc}/tedge/mosquitto-conf
+                    echo 'export TEDGE_CONFIG_DIR="#{etc}/tedge"' >> "$HOME/.zshrc"
+                    . "$HOME/.zshrc"
 
-            Configure your zsh profile then reload it
-                sh -c 'echo export TEDGE_CONFIG_DIR=\"#{etc}/tedge\"' >> "$HOME/.zshrc"
-                
-                . "$HOME/.zshrc"
+            EOS
+        end
 
+        shell_setup + <<~EOS
             Onboarding instructions:
 
                 DEVICE_ID="tedge_on_macos"
@@ -317,13 +326,11 @@ class Tedge < Formula
                 tedge cert download c8y --device-id "$DEVICE_ID" --one-time-password "$ONE_TIME_PASSWORD" --retry-every 5s
                 tedge connect c8y
 
-
             To view logs, run:
 
                 tedge-mapper-c8y-logs
                 tedge-agent-logs
-            
-            
+
             Service control:
 
                 brew services restart tedge-agent
