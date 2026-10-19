@@ -87,6 +87,7 @@ class Tedge < Formula
         # (and not post_install) so that homebrew links them into the global homebrew/bin directory.
         # tedge init also creates some directories, so point them at a temporary location
         init_dir = buildpath/"tedge-init"
+        %w[config logs data].each { |dir| (init_dir/dir).mkpath }
         with_env("TEDGE_LOGS_PATH" => (init_dir/"logs").to_s, "TEDGE_DATA_PATH" => (init_dir/"data").to_s) do
             system bin/"tedge", "init", "--relative-links", "--config-dir", init_dir/"config", "--user=#{user}", "--group=#{group}"
         end
