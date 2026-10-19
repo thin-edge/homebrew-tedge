@@ -7,7 +7,7 @@ class TedgeMain < Formula
 
     depends_on "mosquitto" => :optional
     depends_on "tedge-agent" => :recommended
-    depends_on "tedge-mapper-cumulocity" => :recommended
+    depends_on "tedge-mapper-c8y" => :recommended
 
     on_macos do
         on_arm do
@@ -272,7 +272,7 @@ class TedgeMain < Formula
             Service control:
 
                 brew services restart tedge-agent
-                brew services restart tedge-mapper-cumulocity
+                brew services restart tedge-mapper-c8y
 
             Activate tedge-main (and disable tedge):
 
