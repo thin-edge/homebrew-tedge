@@ -75,6 +75,21 @@ If you want to switch back to the official release (and you have the `tedge` pac
 brew unlink tedge-main; brew link tedge
 ```
 
+## Upgrading
+
+### tedge-mapper-cumulocity renamed to tedge-mapper-c8y
+
+The Cumulocity mapper formula and service was previously called `tedge-mapper-cumulocity`, and is now called `tedge-mapper-c8y`. Homebrew will automatically migrate the installed formula to the new name on the next `brew upgrade`, however a service which is already running under the old name will not be migrated.
+
+If you have the `tedge-mapper-cumulocity` service running, then stop it before upgrading, and start the renamed service afterwards:
+
+```sh
+brew services stop tedge-mapper-cumulocity
+brew update
+brew upgrade
+brew services start tedge-mapper-c8y
+```
+
 ## Testing
 
 Homebrew requires formulae to be inside a registered tap directory. The simplest way to test local changes is to replace the installed tap with your local checkout:

@@ -1,4 +1,4 @@
-class TedgeMapperCumulocity < Formula
+class TedgeMapperC8y < Formula
   desc "thin-edge.io tedge-mapper-c8y service"
   homepage "https://thin-edge.io/"
   version "1.4.2"
@@ -37,8 +37,8 @@ class TedgeMapperCumulocity < Formula
   end
 
   service do
-    name macos: "tedge-mapper-cumulocity",
-         linux: "tedge-mapper-cumulocity"
+    name macos: "tedge-mapper-c8y",
+         linux: "tedge-mapper-c8y"
     run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "c8y"]
     environment_variables TEDGE_CONFIG_DIR: etc/"tedge"
     error_log_path var/"log/tedge-mapper-c8y.log"
@@ -47,10 +47,6 @@ class TedgeMapperCumulocity < Formula
   end
   def caveats
     <<~EOS
-        Note: Due to a homebrew limitation, the c8y mapper service is called "tedge-mapper-cumulocity"
-        instead of the expected "tedge-mapper-c8y". The brewctl script will handle the service alias
-        for you, e.g. "brewctl start tedge-mapper-c8y" will actually start the homebrew "tedge-mapper-cumulocity" service
-
         View the service logs using:
           tedge-mapper-c8y-logs
     EOS
