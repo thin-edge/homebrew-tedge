@@ -214,8 +214,13 @@ class TedgeMain < Formula
             # init the configuration directories (the component symlinks are created during install)
             "#{bin}/tedge" init --config-dir "$CONFIG_DIR" --user="$USER_NAME" --group="$GROUP_NAME"
             "#{bin}/tedge" --config-dir "$CONFIG_DIR" config upgrade
-            if ! PATH="#{bin}:$PATH" "#{bin}/tedge" --config-dir "$CONFIG_DIR" refresh-bridges >/dev/null 2>&1; then
-                opoo "refresh-bridges failed (mosquitto may not be running yet). Run 'tedge reconnect c8y' once services are started."
+            # Migrate any legacy mosquitto bridge configuration to the built-in bridge (the default).
+            # Only needed if a tedge generated bridge config still contains a mosquitto bridge connection.
+            # Note: refresh-bridges also restarts mosquitto, however that always fails during post_install as brew
+            # sets HOME to a temp dir and the sandbox prevents writing to ~/Library/LaunchAgents
+            if grep -qs '^connection ' "$CONFIG_DIR"/mosquitto-conf/c8y*-bridge.conf "$CONFIG_DIR"/mosquitto-conf/az*-bridge.conf "$CONFIG_DIR"/mosquitto-conf/aws*-bridge.conf; then
+                PATH="#{bin}:$PATH" "#{bin}/tedge" --config-dir "$CONFIG_DIR" refresh-bridges >/dev/null 2>&1 || true
+                opoo "Migrated the mosquitto bridge configuration to the built-in bridge. Run 'brew services restart mosquitto' and 'tedge reconnect c8y' to apply the changes."
             fi
 
             # FIXME: Uncomment once https://github.com/thin-edge/thin-edge.io/issues/2886 is resolved
