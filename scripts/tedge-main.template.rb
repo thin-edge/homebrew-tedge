@@ -224,9 +224,12 @@ class TedgeMain < Formula
         end
 
         # Ensure location of the mosquitto persistence file has the correct permissions
-        # otherwise mosquitto will ignore the file
+        # otherwise mosquitto will ignore the file. Mosquitto expects the file's group to match its own
+        # group (e.g. "staff"), however new files inherit the group of the parent directory (e.g. "admin")
         (var/"mosquitto").mkpath
-        system "chown", "-R", "#{user}:#{group}", "#{var}/mosquitto"
+        unless quiet_system "chown", "-R", "#{user}:#{group}", "#{var}/mosquitto"
+            opoo "Could not change the ownership of #{var}/mosquitto to #{user}:#{group}. Run 'sudo chown -R #{user}:#{group} #{var}/mosquitto' to fix it."
+        end
 
         # Register the plugins (installed to pkgshare during install)
         system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", pkgshare/"log-plugins"
