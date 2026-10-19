@@ -94,6 +94,16 @@ class Tedge < Formula
 
         resource("brewctl").stage { bin.install "brewctl" }
 
+        # Shell completions (installed to homebrew's completion directories, e.g. share/zsh/site-functions)
+        generate_completions_from_executable(bin/"tedge", "completions")
+        # The clap generated zsh script only registers the completer when run, so the first <tab>
+        # does nothing when zsh autoloads it from fpath. Invoke the completer directly in that case
+        (zsh_completion/"_tedge").append_lines <<~EOS
+            if [[ "${funcstack[1]}" = "_tedge" ]]; then
+                _clap_dynamic_completer_tedge "$@"
+            fi
+        EOS
+
         # Resources must be staged during install, as homebrew does not allow
         # unpacking resources from within the post_install sandbox
 
@@ -297,7 +307,6 @@ class Tedge < Formula
 
             Configure your zsh profile then reload it
                 sh -c 'echo export TEDGE_CONFIG_DIR=\"#{etc}/tedge\"' >> "$HOME/.zshrc"
-                sh -c 'echo "source <(tedge completions zsh)"' >> "$HOME/.zshrc"
                 
                 . "$HOME/.zshrc"
 
