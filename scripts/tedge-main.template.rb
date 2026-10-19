@@ -81,9 +81,16 @@ class TedgeMain < Formula
 
     def install
         bin.install "tedge"
-        bin.install_symlink bin/"tedge" => "tedge-flows-plugin"
-        bin.install_symlink bin/"tedge" => "tedge-file-log-plugin"
-        bin.install_symlink bin/"tedge" => "tedge-file-config-plugin"
+
+        # Create the component symlinks (e.g. tedge-agent, tedge-mapper) during install
+        # (and not post_install) so that homebrew links them into the global homebrew/bin directory.
+        # tedge init also creates some directories, so point them at a temporary location
+        init_dir = buildpath/"tedge-init"
+        %w[config logs data].each { |dir| (init_dir/dir).mkpath }
+        with_env("TEDGE_LOGS_PATH" => (init_dir/"logs").to_s, "TEDGE_DATA_PATH" => (init_dir/"data").to_s) do
+            system bin/"tedge", "init", "--relative-links", "--config-dir", init_dir/"config", "--user=#{user}", "--group=#{group}"
+        end
+
         resource("brewctl").stage { bin.install "brewctl" }
     end
 
@@ -143,9 +150,7 @@ class TedgeMain < Formula
             EOS
         end
 
-        # init should be run where the tedge binary is located so that the symlinks
-        # are added to the global homebrew/bin directory
-        # TODO: Check if the existing symlinks need to be removed
+        # init the configuration directories (the component symlinks are created during install)
         system "#{bin}/tedge", "init", "--config-dir", "#{config_dir}", "--user=#{user}", "--group=#{group}"
         system "#{bin}/tedge", "--config-dir", "#{config_dir}", "config", "upgrade"
         with_env("PATH" => "#{bin}:#{ENV["PATH"]}") do
