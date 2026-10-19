@@ -93,6 +93,45 @@ class Tedge < Formula
         end
 
         resource("brewctl").stage { bin.install "brewctl" }
+
+        # Resources must be staged during install, as homebrew does not allow
+        # unpacking resources from within the post_install sandbox
+
+        # sm-plugins
+        share_sm_plugins = (pkgshare/"sm-plugins")
+        share_sm_plugins.mkpath
+        resource("sm-plugin-brew").stage { share_sm_plugins.install "brew" }
+        system "chmod", "755", "#{share_sm_plugins}/brew"
+
+        # log plugins
+        share_log_plugins = (pkgshare/"log-plugins")
+        share_log_plugins.mkpath
+        resource("log-plugins-file").stage { share_log_plugins.install "file" }
+        system "chmod", "-R", "755", share_log_plugins
+
+        # config plugins
+        share_config_plugins = (pkgshare/"config-plugins")
+        share_config_plugins.mkpath
+        resource("config-plugins-file").stage { share_config_plugins.install "file" }
+        system "chmod", "-R", "755", share_config_plugins
+
+        # diag plugins
+        share_diag_plugins = (pkgshare/"diag-plugins")
+        share_diag_plugins.mkpath
+        resource("diag-plugins-01_tedge.sh").stage { share_diag_plugins.install "01_tedge.sh" }
+        resource("diag-plugins-02_os.sh").stage { share_diag_plugins.install "02_os.sh" }
+        resource("diag-plugins-03_mqtt.sh").stage { share_diag_plugins.install "03_mqtt.sh" }
+        resource("diag-plugins-04_workflow.sh").stage { share_diag_plugins.install "04_workflow.sh" }
+        resource("diag-plugins-05_entities.sh").stage { share_diag_plugins.install "05_entities.sh" }
+        resource("diag-plugins-06_internal.sh").stage { share_diag_plugins.install "06_internal.sh" }
+        resource("diag-plugins-07_mosquitto.sh").stage { share_diag_plugins.install "07_mosquitto.sh" }
+        system "chmod", "-R", "755", share_diag_plugins
+
+        # scripts
+        shared_scripts = (pkgshare/"scripts")
+        shared_scripts.mkpath
+        resource("brewctl").stage { shared_scripts.install "brewctl" }
+        system "chmod", "755", "#{shared_scripts}/brewctl"
     end
 
     def post_install
@@ -198,62 +237,26 @@ class Tedge < Formula
         end
 
         # Ensure location of the mosquitto persistence file has the correct permissions
-        # otherwise mosquitto will ignore the file
+        # otherwise mosquitto will ignore the file. Mosquitto expects the file's group to match its own
+        # group (e.g. "staff"), however new files inherit the group of the parent directory (e.g. "admin")
         (var/"mosquitto").mkpath
-        system "chown", "-R", "#{user}:#{group}", "#{var}/mosquitto"
+        unless quiet_system "chown", "-R", "#{user}:#{group}", "#{var}/mosquitto"
+            opoo "Could not change the ownership of #{var}/mosquitto to #{user}:#{group}. Run 'sudo chown -R #{user}:#{group} #{var}/mosquitto' to fix it."
+        end
 
-        # Install sm-plugins in a shared folder
-        share_sm_plugins = (pkgshare/"sm-plugins")
-        share_sm_plugins.mkpath
-        resource("sm-plugin-brew").stage { share_sm_plugins.install "brew" }
-
-        # log plugins
-        share_log_plugins = (pkgshare/"log-plugins")
-        share_log_plugins.mkpath
-        resource("log-plugins-file").stage { share_log_plugins.install "file" }
-        system "chmod", "-R", "755", share_log_plugins
-        ohai "Installed log plugins to #{share_log_plugins}"
-        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", share_log_plugins
-
-        # config plugins
-        share_config_plugins = (pkgshare/"config-plugins")
-        share_config_plugins.mkpath
-        resource("config-plugins-file").stage { share_config_plugins.install "file" }
-        system "chmod", "-R", "755", share_config_plugins
-        ohai "Installed log plugins to #{share_config_plugins}"
-        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "configuration.plugin_paths", share_config_plugins
-
-        # diag plugins
-        share_diag_plugins = (pkgshare/"diag-plugins")
-        share_diag_plugins.mkpath
-        resource("diag-plugins-01_tedge.sh").stage { share_diag_plugins.install "01_tedge.sh" }
-        resource("diag-plugins-02_os.sh").stage { share_diag_plugins.install "02_os.sh" }
-        resource("diag-plugins-03_mqtt.sh").stage { share_diag_plugins.install "03_mqtt.sh" }
-        resource("diag-plugins-04_workflow.sh").stage { share_diag_plugins.install "04_workflow.sh" }
-        resource("diag-plugins-05_entities.sh").stage { share_diag_plugins.install "05_entities.sh" }
-        resource("diag-plugins-06_internal.sh").stage { share_diag_plugins.install "06_internal.sh" }
-        resource("diag-plugins-07_mosquitto.sh").stage { share_diag_plugins.install "07_mosquitto.sh" }
-        system "chmod", "-R", "755", share_diag_plugins
-        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", share_diag_plugins
-        ohai "Installed diag plugins to #{share_diag_plugins}"
+        # Register the plugins (installed to pkgshare during install)
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "log.plugin_paths", pkgshare/"log-plugins"
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "configuration.plugin_paths", pkgshare/"config-plugins"
+        system "#{bin}/tedge", "config", "--config-dir", "#{config_dir}", "set", "diag.plugin_paths", pkgshare/"diag-plugins"
 
         # Symlink to the brew sm-plugin from the shared folder
         # This allows users to remove the symlink if they don't want the sm-plugin
         # rather than deleting the whole file
         sm_plugins_dir = (etc/"tedge/sm-plugins")
-        sm_plugins_dir.install_symlink share_sm_plugins/"brew"
-        system "chmod", "755", "#{share_sm_plugins}/brew"
-        sm_plugins_dir = (etc/"tedge/sm-plugins")
-        sm_plugins_dir.install_symlink share_sm_plugins/"brew"
-
+        sm_plugins_dir.install_symlink pkgshare/"sm-plugins/brew"
         sm_plugins_dir.install_symlink bin/"tedge-flows-plugin" => "flow"
 
-        # Install scripts
-        shared_scripts = (pkgshare/"scripts")
-        shared_scripts.mkpath
-        resource("brewctl").stage { shared_scripts.install "brewctl" }
-        system "chmod", "755", "#{shared_scripts}/brewctl"
-        config_dir.install_symlink shared_scripts/"brewctl"
+        config_dir.install_symlink pkgshare/"scripts/brewctl"
     end
 
     def caveats
