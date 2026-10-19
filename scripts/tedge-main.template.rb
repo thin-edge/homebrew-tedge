@@ -333,8 +333,8 @@ class TedgeMain < Formula
 
             Service control:
 
-                brew services restart tedge-agent
-                brew services restart tedge-mapper-c8y
+                tedge service restart tedge-agent
+                tedge service restart tedge-mapper-c8y
 
             Activate tedge-main (and disable tedge):
 
