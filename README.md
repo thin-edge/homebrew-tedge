@@ -79,15 +79,21 @@ brew unlink tedge-main; brew link tedge
 
 ### tedge-mapper-cumulocity renamed to tedge-mapper-c8y
 
-The Cumulocity mapper formula and service was previously called `tedge-mapper-cumulocity`, and is now called `tedge-mapper-c8y`. Homebrew will automatically migrate the installed formula to the new name on the next `brew upgrade`, however a service which is already running under the old name will not be migrated.
+The Cumulocity mapper formula and service was previously called `tedge-mapper-cumulocity`, and is now called `tedge-mapper-c8y`. Homebrew will automatically migrate the installed formula to the new name on the next `brew update`, and `brew upgrade` will then reinstall it so that the service is registered under the new name. However a service which is already registered under the old name will not be migrated.
 
-If you have the `tedge-mapper-cumulocity` service running, then stop it before upgrading, and start the renamed service afterwards:
+If you have the `tedge-mapper-cumulocity` service registered, then stop it before upgrading, and start the renamed service afterwards:
 
 ```sh
 brew services stop tedge-mapper-cumulocity
 brew update
-brew upgrade
+brew upgrade tedge-mapper-c8y
 brew services start tedge-mapper-c8y
+```
+
+If you already ran `brew update` before stopping the old service, then `brew services stop tedge-mapper-cumulocity` will still unload it, but you will need to remove the old service file manually:
+
+```sh
+rm -f ~/Library/LaunchAgents/tedge-mapper-cumulocity.plist
 ```
 
 ## Testing
