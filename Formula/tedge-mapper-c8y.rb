@@ -41,7 +41,7 @@ class TedgeMapperC8y < Formula
     name macos: "tedge-mapper-c8y",
          linux: "tedge-mapper-c8y"
     run ["#{HOMEBREW_PREFIX}/bin/tedge-mapper", "c8y"]
-    environment_variables TEDGE_CONFIG_DIR: etc/"tedge"
+    environment_variables PATH: std_service_path_env, TEDGE_CONFIG_DIR: etc/"tedge"
     error_log_path var/"log/tedge-mapper-c8y.log"
     keep_alive true
     restart_delay 5
