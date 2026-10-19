@@ -25,8 +25,8 @@ thin-edge.io has been installed with a default configuration file.
 You can make changes to the configuration by editing:
     /opt/homebrew/etc/tedge/tedge.toml
 
-You need to manually edit the mosquitto configuration to add the following line:
-    sh -c 'echo include_dir /opt/homebrew/etc/tedge/mosquitto-conf >> "/opt/homebrew/etc/mosquitto/mosquitto.conf"'
+The thin-edge.io mosquitto configuration is included via the following line in /opt/homebrew/etc/mosquitto/mosquitto.conf:
+    include_dir /opt/homebrew/etc/tedge/mosquitto-conf
 
 The following components can be started manually using:
 

@@ -184,6 +184,18 @@ class Tedge < Formula
             EOS
         end
 
+        # Include the thin-edge.io mosquitto configuration in the main mosquitto configuration.
+        # The mosquitto formula does not create a mosquitto.conf file, so create it if it does not exist
+        mosquitto_conf = etc/"mosquitto/mosquitto.conf"
+        mosquitto_include = "include_dir #{config_dir}/mosquitto-conf"
+        existing_mosquitto_conf = mosquitto_conf.exist? ? mosquitto_conf.read : ""
+        if existing_mosquitto_conf.lines.none? { |line| line.strip == mosquitto_include }
+            mosquitto_conf.dirname.mkpath
+            separator = (existing_mosquitto_conf.empty? || existing_mosquitto_conf.end_with?("\n")) ? "" : "\n"
+            File.open(mosquitto_conf, "a") { |file| file.write("#{separator}#{mosquitto_include}\n") }
+            ohai "Added '#{mosquitto_include}' to #{mosquitto_conf}"
+        end
+
         # Ensure location of the mosquitto persistence file has the correct permissions
         # otherwise mosquitto will ignore the file
         (var/"mosquitto").mkpath
@@ -249,8 +261,8 @@ class Tedge < Formula
             You can make changes to the configuration by editing:
                 #{etc}/tedge/tedge.toml
 
-            You need to manually edit the mosquitto configuration to add the following line:
-                sh -c 'echo include_dir #{etc}/tedge/mosquitto-conf >> "#{etc}/mosquitto/mosquitto.conf"'
+            The thin-edge.io mosquitto configuration is included via the following line in #{etc}/mosquitto/mosquitto.conf:
+                include_dir #{etc}/tedge/mosquitto-conf
 
             Configure your zsh profile then reload it
                 sh -c 'echo export TEDGE_CONFIG_DIR=\"#{etc}/tedge\"' >> "$HOME/.zshrc"
