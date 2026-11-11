@@ -27,7 +27,7 @@ class Tedge < Formula
 
     resource "brewctl" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/brewctl"
-        sha256 "78d48cacf66b98a8335c5b4834a3e7507bef4b16d230cb728a839dd5bcca6b8a"
+        sha256 "305535b21bf22302816d05274be636646d629d52689f2661d30cd46f4ca64a01"
     end
 
     # log plugins

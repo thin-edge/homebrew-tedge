@@ -21,6 +21,9 @@ EXAMPLES
 
     $0 services restart tedge-agent
     # Restart tedge-agent
+
+    $0 services restart tedge
+    # Restart the all-in-one tedge service (tedge run all), provided by the linked tedge/tedge-main formula
 EOT
 }
 
@@ -53,6 +56,24 @@ fi
 COMMAND="$1"
 shift
 
+# Map a service name to the formula which provides it, as brew services only accepts formula names.
+# The all-in-one "tedge" service (tedge run all) is provided by whichever tedge formula is
+# currently linked, e.g. tedge-main
+service_formula() {
+    case "$1" in
+        tedge)
+            TARGET=$(readlink "$("$BREW" --prefix)/bin/tedge" 2>/dev/null || true)
+            case "$TARGET" in
+                */Cellar/*) echo "$TARGET" | sed 's|.*/Cellar/\([^/]*\)/.*|\1|' ;;
+                *) echo "$1" ;;
+            esac
+            ;;
+        *)
+            echo "$1"
+            ;;
+    esac
+}
+
 service_mgmt() {
     SUBCOMMAND="$1"
     shift
@@ -74,21 +95,21 @@ service_mgmt() {
         is_available)
             "$BREW" services --help >/dev/null 2>&1
             ;;
-        is_active)
+        is_active|is-active)
             fail_if_empty "$NAME"
-            "$BREW" services info "$NAME" | grep -q "PID:"
+            "$BREW" services info "$(service_formula "$NAME")" | grep -q "PID:"
             ;;
         restart)
             fail_if_empty "$NAME"
-            "$BREW" services restart "$NAME"
+            "$BREW" services restart "$(service_formula "$NAME")"
             ;;
         start)
             fail_if_empty "$NAME"
-            "$BREW" services start "$NAME"
+            "$BREW" services start "$(service_formula "$NAME")"
             ;;
         stop)
             fail_if_empty "$NAME"
-            "$BREW" services stop "$NAME"
+            "$BREW" services stop "$(service_formula "$NAME")"
             ;;
         enable|disable)
             # no-op

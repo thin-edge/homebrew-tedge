@@ -27,7 +27,7 @@ class TedgeMain < Formula
 
     resource "brewctl" do
         url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/brewctl"
-        sha256 "78d48cacf66b98a8335c5b4834a3e7507bef4b16d230cb728a839dd5bcca6b8a"
+        sha256 "305535b21bf22302816d05274be636646d629d52689f2661d30cd46f4ca64a01"
     end
 
     # log plugins
@@ -296,6 +296,20 @@ class TedgeMain < Formula
         EOS
     end
 
+    # Experimental: all-in-one service which runs the agent and all of the configured mappers
+    # in a single process (instead of the separate tedge-agent and tedge-mapper-* services).
+    # The service is called "tedge" as that is the name the tedge cli expects (e.g. tedge connect)
+    service do
+        name macos: "tedge",
+             linux: "tedge"
+        run [opt_bin/"tedge", "run", "all"]
+        environment_variables PATH: std_service_path_env, TEDGE_CONFIG_DIR: etc/"tedge"
+        log_path var/"log/tedge.log"
+        error_log_path var/"log/tedge.log"
+        keep_alive true
+        restart_delay 5
+    end
+
     def tedge_config_dir_in_shell_profile?
         zdotdir = ENV.fetch("ZDOTDIR", Dir.home)
         %w[.zshenv .zprofile .zshrc].any? do |name|
@@ -336,6 +350,22 @@ class TedgeMain < Formula
 
                 tedge service restart tedge-agent
                 tedge service restart tedge-mapper-c8y
+
+            Experimental: run the agent and all configured mappers as a single "tedge" service (tedge run all),
+            instead of the separate tedge-agent and tedge-mapper-c8y services:
+
+                brew services stop tedge-agent; brew services stop tedge-mapper-c8y
+                brew services start tedge-main
+                tail -f "#{var}/log/tedge.log"
+
+            Once running, the service is controlled using:
+
+                tedge service restart tedge
+
+            To switch back to the separate services:
+
+                brew services stop tedge-main
+                brew services start tedge-agent; brew services start tedge-mapper-c8y
 
             Activate tedge-main (and disable tedge):
 
