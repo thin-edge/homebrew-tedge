@@ -20,55 +20,55 @@ class TedgeMain < Formula
     end
 
     resource "sm-plugin-brew" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/sm-plugins/brew"
-        sha256 "f6c42a2e1e205af6a3f615e50fd07c283bab94d4bee7912014b7c2a92e42e35c"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/sm-plugins/brew"
+        sha256 "$EXTRAS_SHA256"
     end
 
     resource "brewctl" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/brewctl"
-        sha256 "78d48cacf66b98a8335c5b4834a3e7507bef4b16d230cb728a839dd5bcca6b8a"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/brewctl"
+        sha256 "$EXTRAS_SHA256"
     end
 
     # log plugins
     resource "log-plugins-file" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/log-plugins/file"
-        sha256 "b0c30901962bf5614e895576432db4987c444e28c5d437b55e220d7c2978e474"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/log-plugins/file"
+        sha256 "$EXTRAS_SHA256"
     end
 
     # config plugins
     resource "config-plugins-file" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/config-plugins/file"
-        sha256 "727053aacfafab21745e942af849412f1f5f217e60a45bdfd6c19624a2e6f39e"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/config-plugins/file"
+        sha256 "$EXTRAS_SHA256"
     end
 
     # diag plugins
     resource "diag-plugins-01_tedge.sh" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/01_tedge.sh"
-        sha256 "e38abbc7b616a1c2c75a0fe9a9834e983cb4cc3d4700ecdf8387e6492e7d03a2"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/diag-plugins/01_tedge.sh"
+        sha256 "$EXTRAS_SHA256"
     end
     resource "diag-plugins-02_os.sh" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/02_os.sh"
-        sha256 "e18d510f69119208fbfba86a95386c4127deab4b0e6d61ce280cba2e2f4849aa"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/diag-plugins/02_os.sh"
+        sha256 "$EXTRAS_SHA256"
     end
     resource "diag-plugins-03_mqtt.sh" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/03_mqtt.sh"
-        sha256 "e2983078fce45ba07572cb33ead0c3f3398d2507690d825563409bbc86401939"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/diag-plugins/03_mqtt.sh"
+        sha256 "$EXTRAS_SHA256"
     end
     resource "diag-plugins-04_workflow.sh" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/04_workflow.sh"
-        sha256 "d2db9759ec597fccc31dbcf4a431b8770f640543bfd409dbfb93781ee2e0d9d6"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/diag-plugins/04_workflow.sh"
+        sha256 "$EXTRAS_SHA256"
     end
     resource "diag-plugins-05_entities.sh" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/05_entities.sh"
-        sha256 "286b4dabeaae417dc0cf0dbe9bacb589df100087fd3995304a57e1db04b89496"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/diag-plugins/05_entities.sh"
+        sha256 "$EXTRAS_SHA256"
     end
     resource "diag-plugins-06_internal.sh" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/06_internal.sh"
-        sha256 "772646a6ec6efa89a1ffdbd22c841bf4cf1862d4dd70f4399ce67d50bad03e21"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/diag-plugins/06_internal.sh"
+        sha256 "$EXTRAS_SHA256"
     end
     resource "diag-plugins-07_mosquitto.sh" do
-        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/diag-plugins/07_mosquitto.sh"
-        sha256 "ceaedca49540f156fc066864b30c7dedb7fd998fd8a73f4a6af75b3b4aa18abe"
+        url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/$EXTRAS_REF/extras/diag-plugins/07_mosquitto.sh"
+        sha256 "$EXTRAS_SHA256"
     end
 
     def user

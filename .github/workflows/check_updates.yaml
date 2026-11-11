@@ -16,6 +16,9 @@ jobs:
       PR_BRANCH: updater
     steps:
       - uses: actions/checkout@v4
+        with:
+          # full history is required to find the latest commit which changed extras/
+          fetch-depth: 0
       - name: Check update
         id: update
         run: |

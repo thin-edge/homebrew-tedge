@@ -3,13 +3,13 @@ class TedgeAgent < Formula
   homepage "https://thin-edge.io/"
   version "1.4.2"
   license "Apache-2.0"
-  url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-agent-logs"
+  url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/41a3e50e54c61eb4b3a0f289ae04966927d3b2be/extras/tedge-agent-logs"
   sha256 "42dec6c7a1b2c53e7c29a4b73ddd7ccf3b2cbb916224d3fe57900a9320aae7bb"
   depends_on "tedge" => :optional
   depends_on "logrotate" => :recommended
 
   resource "tedge-agent-logs" do
-    url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-agent-logs"
+    url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/41a3e50e54c61eb4b3a0f289ae04966927d3b2be/extras/tedge-agent-logs"
     sha256 "42dec6c7a1b2c53e7c29a4b73ddd7ccf3b2cbb916224d3fe57900a9320aae7bb"
   end
 
