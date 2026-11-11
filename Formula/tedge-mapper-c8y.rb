@@ -4,13 +4,13 @@ class TedgeMapperC8y < Formula
   version "1.4.2"
   revision 1
   license "Apache-2.0"
-  url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-mapper-c8y-logs"
+  url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/41a3e50e54c61eb4b3a0f289ae04966927d3b2be/extras/tedge-mapper-c8y-logs"
   sha256 "f04d2c22735a885904f4bd29283d98e253e5b2186300f212364b3039098bcb55"
   depends_on "tedge" => :optional
   depends_on "logrotate" => :recommended
 
   resource "tedge-mapper-c8y-logs" do
-    url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/main/extras/tedge-mapper-c8y-logs"
+    url "https://raw.githubusercontent.com/thin-edge/homebrew-tedge/41a3e50e54c61eb4b3a0f289ae04966927d3b2be/extras/tedge-mapper-c8y-logs"
     sha256 "f04d2c22735a885904f4bd29283d98e253e5b2186300f212364b3039098bcb55"
   end
 
